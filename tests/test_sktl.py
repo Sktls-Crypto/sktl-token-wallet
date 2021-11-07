@@ -283,3 +283,65 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             self.token.balanceOf(get_account(4)),
             2750 * DECIMALS,
         )
+
+    def test_transfer_max(self):
+        self.token.rewards(4000 * DECIMALS)
+        self.assertEqual(
+            self.token.balanceOf(get_account(1)),
+            1000 * DECIMALS,
+        )
+        self.assertEqual(
+            self.token.rewardBalance(get_account(1)),
+            1000 * DECIMALS,
+        )
+        self.token.transfer(get_account(3), 2000 * DECIMALS, {"from": get_account(1)})  # transfer balance + reward
+
+        self.assertEqual(
+            self.token.balanceOf(get_account(1)),
+            0,
+        )
+        self.assertEqual(
+            self.token.rewardBalance(get_account(1)),
+            0,
+        )
+        self.assertEqual(
+            self.token.balanceOf(get_account(3)),
+            2000 * DECIMALS,
+        )
+        self.assertEqual(
+            self.token.rewardBalance(get_account(3)),
+            0,
+        )
+
+    def test_transfer_from_max(self):
+        self.token.rewards(4000 * DECIMALS)
+        self.assertEqual(
+            self.token.balanceOf(get_account(1)),
+            1000 * DECIMALS,
+        )
+        self.assertEqual(
+            self.token.rewardBalance(get_account(1)),
+            1000 * DECIMALS,
+        )
+
+        self.token.approve(get_account(4), 2000 * DECIMALS, {"from": get_account(1)})
+        
+        # transfer balance + reward
+        self.token.transferFrom(get_account(1), get_account(3), 2000 * DECIMALS, {"from": get_account(4)})
+
+        self.assertEqual(
+            self.token.balanceOf(get_account(1)),
+            0,
+        )
+        self.assertEqual(
+            self.token.rewardBalance(get_account(1)),
+            0,
+        )
+        self.assertEqual(
+            self.token.balanceOf(get_account(3)),
+            2000 * DECIMALS,
+        )
+        self.assertEqual(
+            self.token.rewardBalance(get_account(3)),
+            0,
+        )
