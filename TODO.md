@@ -1,0 +1,3 @@
+- added unittest for votes changes after increaseReward & transfer
+- Governor contract that can be used
+- test multisig on the donation pool contract / the increaseReward one
