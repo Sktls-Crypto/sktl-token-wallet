@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./governance/Governor.sol";
-import "./governance/compatibility/GovernorCompatibilityBravo.sol";
-import "./governance/extensions/GovernorVotes.sol";
-import "./governance/extensions/GovernorVotesQuorumFraction.sol";
-import "./governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
 contract SktlGovernor is
     Governor,
