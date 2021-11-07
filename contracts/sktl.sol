@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SKTL is ERC20, Ownable {
 
+    uint256 public constant maxSupply = 300000000000000000000000000; // 300MM
     uint256 public constant scaling = 1000000000000000000; // 10^18
     uint256 public constant totalRewardToken = 1000000000000000000000000000; // 10B fixed
 
@@ -85,12 +86,18 @@ contract SKTL is ERC20, Ownable {
             _rewardTokenBalance[to] += rewardTokenTransfered;
     }
 
-    function rewards(uint256 amount) public onlyOwner{
+    function _mint(address account, uint256 amount) internal virtual override {
+        require(ERC20.totalSupply() + amount <= maxSupply, "maxSupply exceeded");
+        super._mint(account, amount);
+    }
+
+    function increaseReward(uint256 amount) public onlyOwner{
+        _mint(owner(), amount);
+
         // scale the deposit and add the previous remainder
         uint256 scaledAvailable = (amount * scaling) + _scaledRemainder;
         _scaledRewardPerToken += scaledAvailable / totalRewardToken;
         _scaledRemainder = scaledAvailable % totalRewardToken;
-        _mint(owner(), amount);
         _scaledRewardCreditedTo[owner()] = _scaledRewardPerToken;
     }
 

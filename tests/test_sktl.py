@@ -68,7 +68,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         )
 
     def test_simple_rewards(self):
-        self.token.rewards(1000 * DECIMALS)
+        self.token.increaseReward(1000 * DECIMALS)
 
         self.assertEqual(
             self.token.scaledRewardPerToken(),
@@ -95,8 +95,8 @@ class TestSKTLSimpleDvd(unittest.TestCase):
                                   250 * DECIMALS)
 
     def test_second_rewards(self):
-        self.token.rewards(4000 * DECIMALS)
-        self.token.rewards(8000 * DECIMALS)
+        self.token.increaseReward(4000 * DECIMALS)
+        self.token.increaseReward(8000 * DECIMALS)
 
         self.assertEqual(
             self.token.scaledRewardPerToken(),
@@ -125,7 +125,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
     def test_second_transfer(self):
         # test reward, then transfer, then reward
-        self.token.rewards(1000 * DECIMALS)
+        self.token.increaseReward(1000 * DECIMALS)
         self.token.transfer(get_account(3), 500 * DECIMALS,
                             {"from": get_account(2)})
 
@@ -136,7 +136,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         self.assertIntAlmostEqual(
             self.token.rewardTokenBalance(get_account(3)),
             500 / 1250 * self.token.rewardTokenBalance(get_account(1)))
-        self.token.rewards(1000 * DECIMALS)
+        self.token.increaseReward(1000 * DECIMALS)
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
             500 * DECIMALS,
@@ -163,7 +163,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
     def test_should_fail(self):
         # make sure only owner can reward
         with brownie.reverts():
-            self.token.rewards(1000 * DECIMALS, {"from": get_account(2)})
+            self.token.increaseReward(1000 * DECIMALS, {"from": get_account(2)})
 
         # transfer more than it owns
         with brownie.reverts():
@@ -178,9 +178,9 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         self.token.transferOwnership(get_account(4), {"from": get_account(0)})
 
         with brownie.reverts():
-            self.token.rewards(1000 * DECIMALS, {"from": get_account(0)})
+            self.token.increaseReward(1000 * DECIMALS, {"from": get_account(0)})
 
-        self.token.rewards(1000 * DECIMALS, {"from": get_account(4)})
+        self.token.increaseReward(1000 * DECIMALS, {"from": get_account(4)})
 
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
@@ -223,7 +223,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         # make sure the simple reward works
 
-        self.token.rewards(1000 * DECIMALS)
+        self.token.increaseReward(1000 * DECIMALS)
 
         self.assertEqual(
             self.token.scaledRewardPerToken(),
@@ -270,7 +270,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             2000 * DECIMALS,
         )
 
-        self.token.rewards(1000 * DECIMALS, {"from": get_account(4)})
+        self.token.increaseReward(1000 * DECIMALS, {"from": get_account(4)})
 
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
@@ -289,7 +289,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         )
 
     def test_transfer_max(self):
-        self.token.rewards(4000 * DECIMALS)
+        self.token.increaseReward(4000 * DECIMALS)
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
             1000 * DECIMALS,
@@ -320,7 +320,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         )
 
     def test_transfer_from_max(self):
-        self.token.rewards(4000 * DECIMALS)
+        self.token.increaseReward(4000 * DECIMALS)
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
             1000 * DECIMALS,
@@ -353,3 +353,10 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             self.token.rewardBalance(get_account(3)),
             0,
         )
+
+    def test_max_supply(self):
+        three_mm = 300 * 10**6
+        self.token.increaseReward((three_mm - 4000) * DECIMALS)
+
+        with brownie.reverts():
+            self.token.increaseReward(1)
