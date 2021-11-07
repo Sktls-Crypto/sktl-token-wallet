@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
-
     uint256 public constant scaling = 1000000000000000000; // 10^18
     uint256 public constant totalRewardToken = 1000000000000000000000000000; // 10B fixed
 
@@ -18,20 +17,28 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
     uint256 private _scaledRemainder = 0;
     bool private _enableHook = true;
 
-
-    constructor(uint256 initialSupply) 
-        ERC20("Skytale", "SKTL") 
+    constructor(uint256 initialSupply)
+        ERC20("Skytale", "SKTL")
         ERC20Capped(300000000000000000000000000)
     {
-        require(owner() == _msgSender(), "owner is not the same as _msgSender()");
+        require(
+            owner() == _msgSender(),
+            "owner is not the same as _msgSender()"
+        );
 
         // owner() will own the unclaimed tokens
         _mint(owner(), initialSupply);
         _rewardTokenBalance[owner()] = totalRewardToken;
     }
 
-    function rewardBalance(address account) public view virtual returns (uint256) {
-        uint256 scaledOwed = _scaledRewardPerToken - _scaledRewardCreditedTo[account];
+    function rewardBalance(address account)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        uint256 scaledOwed = _scaledRewardPerToken -
+            _scaledRewardCreditedTo[account];
         return (_rewardTokenBalance[account] * scaledOwed) / scaling;
     }
 
@@ -46,9 +53,17 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
         _scaledRewardCreditedTo[account] = _scaledRewardPerToken;
     }
 
-    function transferOwnership(address newOwner) public virtual override onlyOwner {
+    function transferOwnership(address newOwner)
+        public
+        virtual
+        override
+        onlyOwner
+    {
         _update(newOwner);
-        require(balanceOf(newOwner) == 0, "newOwner is required to hold no tokens");
+        require(
+            balanceOf(newOwner) == 0,
+            "newOwner is required to hold no tokens"
+        );
 
         _update(owner()); // make sure transfer full balance of owner()
         _transfer(owner(), newOwner, balanceOf(owner()));
@@ -56,9 +71,11 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
         super.transferOwnership(newOwner);
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 value)
-        internal virtual override(ERC20, ERC20Pausable)
-    {
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 value
+    ) internal virtual override(ERC20, ERC20Pausable) {
         ERC20Pausable._beforeTokenTransfer(from, to, value); // this will call ERC20._beforeTokenTransfer
         if (!_enableHook) return;
 
@@ -66,16 +83,15 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
             // minting
             return;
 
-            _update(from);
-            _update(to);
+        _update(from);
+        _update(to);
     }
 
     function _afterTokenTransfer(
         address from,
         address to,
         uint256 value
-    ) internal virtual override
-    {
+    ) internal virtual override {
         super._afterTokenTransfer(from, to, value);
         if (!_enableHook) return;
 
@@ -83,13 +99,15 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
             // miniting
             return;
 
-            uint256 scaledTransferPct = (value * scaling) / (balanceOf(from) + value) ;
-            uint256 rewardTokenTransfered = (scaledTransferPct * _rewardTokenBalance[from]) / scaling;
-            _rewardTokenBalance[from] -= rewardTokenTransfered;
-            _rewardTokenBalance[to] += rewardTokenTransfered;
+        uint256 scaledTransferPct = (value * scaling) /
+            (balanceOf(from) + value);
+        uint256 rewardTokenTransfered = (scaledTransferPct *
+            _rewardTokenBalance[from]) / scaling;
+        _rewardTokenBalance[from] -= rewardTokenTransfered;
+        _rewardTokenBalance[to] += rewardTokenTransfered;
     }
 
-    function increaseReward(uint256 amount) public onlyOwner{
+    function increaseReward(uint256 amount) public onlyOwner {
         _mint(owner(), amount);
 
         // scale the deposit and add the previous remainder
@@ -108,19 +126,28 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
         return _scaledRewardPerToken;
     }
 
-    function rewardTokenBalance(address addr) public view virtual returns(uint256) {
+    function rewardTokenBalance(address addr)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         return _rewardTokenBalance[addr];
     }
 
-    function _mint(address account, uint256 amount) internal virtual override (ERC20, ERC20Capped) {
+    function _mint(address account, uint256 amount)
+        internal
+        virtual
+        override(ERC20, ERC20Capped)
+    {
         ERC20Capped._mint(account, amount);
     }
 
-    function pause() public onlyOwner{
+    function pause() public onlyOwner {
         super._pause();
     }
 
-    function unpause() public onlyOwner{
+    function unpause() public onlyOwner {
         super._unpause();
     }
 }
