@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SKTL is ERC20, Ownable {
+contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
 
-    uint256 public constant maxSupply = 300000000000000000000000000; // 300MM
     uint256 public constant scaling = 1000000000000000000; // 10^18
     uint256 public constant totalRewardToken = 1000000000000000000000000000; // 10B fixed
 
@@ -19,7 +19,10 @@ contract SKTL is ERC20, Ownable {
     bool private _enableHook = true;
 
 
-    constructor(uint256 initialSupply) ERC20("Skytale", "SKTL") {
+    constructor(uint256 initialSupply) 
+        ERC20("Skytale", "SKTL") 
+        ERC20Capped(300000000000000000000000000)
+    {
         require(owner() == _msgSender(), "owner is not the same as _msgSender()");
 
         // owner() will own the unclaimed tokens
@@ -53,10 +56,9 @@ contract SKTL is ERC20, Ownable {
         super.transferOwnership(newOwner);
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 value)
-    internal virtual override
+    function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override(ERC20, ERC20Pausable)
     {
-        super._beforeTokenTransfer(from, to, value);
+        ERC20Pausable._beforeTokenTransfer(from, to, value); // this will call ERC20._beforeTokenTransfer
         if (!_enableHook) return;
 
         if (from == address(0))
@@ -86,11 +88,6 @@ contract SKTL is ERC20, Ownable {
             _rewardTokenBalance[to] += rewardTokenTransfered;
     }
 
-    function _mint(address account, uint256 amount) internal virtual override {
-        require(ERC20.totalSupply() + amount <= maxSupply, "maxSupply exceeded");
-        super._mint(account, amount);
-    }
-
     function increaseReward(uint256 amount) public onlyOwner{
         _mint(owner(), amount);
 
@@ -112,5 +109,9 @@ contract SKTL is ERC20, Ownable {
 
     function rewardTokenBalance(address addr) public view virtual returns(uint256) {
         return _rewardTokenBalance[addr];
+    }
+
+    function _mint(address account, uint256 amount) internal virtual override (ERC20, ERC20Capped) {
+        ERC20Capped._mint(account, amount);
     }
 }
