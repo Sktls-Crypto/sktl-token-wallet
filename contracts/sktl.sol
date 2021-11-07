@@ -52,38 +52,38 @@ contract SKTL is ERC20, Ownable {
         super.transferOwnership(newOwner);
     }
 
-     function _beforeTokenTransfer(address from, address to, uint256 value)
-         internal virtual override
-     {
-         super._beforeTokenTransfer(from, to, value);
-         if (!_enableHook) return;
- 
-         if (from == address(0))
-             // minting
-             return;
- 
-         _update(from);
-         _update(to);
-     }
- 
-     function _afterTokenTransfer(
-         address from,
-         address to,
-         uint256 value
-     ) internal virtual override
-     {
-         super._afterTokenTransfer(from, to, value);
-         if (!_enableHook) return;
+    function _beforeTokenTransfer(address from, address to, uint256 value)
+    internal virtual override
+    {
+        super._beforeTokenTransfer(from, to, value);
+        if (!_enableHook) return;
 
-         if (from == address(0))
-             // miniting
-             return;
- 
-        uint256 scaledTransferPct = (value * scaling) / (balanceOf(from) + value) ;
-        uint256 rewardTokenTransfered = (scaledTransferPct * _rewardTokenBalance[from]) / scaling;
-        _rewardTokenBalance[from] -= rewardTokenTransfered;
-        _rewardTokenBalance[to] += rewardTokenTransfered;
-     }
+        if (from == address(0))
+            // minting
+            return;
+
+            _update(from);
+            _update(to);
+    }
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 value
+    ) internal virtual override
+    {
+        super._afterTokenTransfer(from, to, value);
+        if (!_enableHook) return;
+
+        if (from == address(0))
+            // miniting
+            return;
+
+            uint256 scaledTransferPct = (value * scaling) / (balanceOf(from) + value) ;
+            uint256 rewardTokenTransfered = (scaledTransferPct * _rewardTokenBalance[from]) / scaling;
+            _rewardTokenBalance[from] -= rewardTokenTransfered;
+            _rewardTokenBalance[to] += rewardTokenTransfered;
+    }
 
     function rewards(uint256 amount) public onlyOwner{
         // scale the deposit and add the previous remainder
