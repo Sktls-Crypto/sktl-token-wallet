@@ -386,3 +386,23 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         self.token.unpause({"from": get_account(0)})
         self.test_second_transfer()  # transfer test normal
+
+    def test_hook(self):
+        # test if hookEnabled
+        self.token.pause({"from": get_account(0)})
+        with brownie.reverts():
+            self.token.transfer(get_account(6), 1000*DECIMALS, {"from": get_account(0)})
+        self.assertEqual(self.token.isHookEnabled(), True)
+
+        with brownie.reverts():
+            self.token.transfer(get_account(6), 100*DECIMALS, {"from": get_account(8)})
+        self.assertEqual(self.token.isHookEnabled(), True)
+
+        with brownie.reverts():
+            self.token.transferFrom(get_account(3), get_account(6), 100*DECIMALS, {"from": get_account(8)})
+        self.assertEqual(self.token.isHookEnabled(), True)
+
+        with brownie.reverts():
+            self.token.increaseReward(101 * 10**6 * DECIMALS)
+        self.assertEqual(self.token.isHookEnabled(), True)
+

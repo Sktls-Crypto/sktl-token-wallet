@@ -24,7 +24,7 @@ contract SKTL is
     mapping(address => uint256) private _scaledRewardCreditedTo;
     mapping(address => uint256) private _rewardTokenBalance;
     uint256 private _scaledRemainder = 0;
-    bool private _enableHook = true;
+    bool private _hookEnabled = true;
 
     constructor(uint256 initialSupply)
         ERC20("Skytale", "SKTL")
@@ -55,10 +55,9 @@ contract SKTL is
     function _update(address account) internal {
         uint256 owed = rewardBalance(account);
         if (owed > 0) {
-            // this is _transfer() without hook, may need to handler revert
-            _enableHook = false;
+            _hookEnabled = false;
             _transfer(owner(), account, owed);
-            _enableHook = true;
+            _hookEnabled = true;
         }
         _scaledRewardCreditedTo[account] = _scaledRewardPerToken;
     }
@@ -87,7 +86,7 @@ contract SKTL is
         uint256 value
     ) internal virtual override(ERC20, ERC20Pausable) {
         super._beforeTokenTransfer(from, to, value); // this will call ERC20._beforeTokenTransfer
-        if (!_enableHook) return;
+        if (!_hookEnabled) return;
 
         if (from == address(0))
             // minting
@@ -103,7 +102,7 @@ contract SKTL is
         uint256 value
     ) internal virtual override(ERC20, ERC20Votes) {
         super._afterTokenTransfer(from, to, value);
-        if (!_enableHook) return;
+        if (!_hookEnabled) return;
 
         if (from == address(0))
             // miniting
@@ -166,5 +165,10 @@ contract SKTL is
 
     function unpause() public onlyOwner {
         super._unpause();
+    }
+
+    // this is more unittest to make sure the hook stays at the initial
+    function isHookEnabled() public view returns (bool) {
+        return _hookEnabled;
     }
 }
