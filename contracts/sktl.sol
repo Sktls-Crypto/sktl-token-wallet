@@ -19,7 +19,7 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
 
     constructor(uint256 initialSupply)
         ERC20("Skytale", "SKTL")
-        ERC20Capped(300000000000000000000000000)
+        ERC20Capped(300000000000000000000000000) // 300MM max
     {
         require(
             owner() == _msgSender(),
