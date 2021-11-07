@@ -19,7 +19,7 @@ def deploy_token_farm_and_dapp_token(update_front_end=False):
 
 def add_reward():
     account = get_account()
-    sktl = Sktl20[-1]
+    sktl = Sktl20.at('0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD')
     sktl.rewards(1000 * (10 ** 18), {"from": account})
 
 
