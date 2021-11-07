@@ -7,7 +7,17 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+
+contract SKTL is
+    ERC20,
+    Ownable,
+    ERC20Permit,
+    ERC20Votes,
+    ERC20Pausable,
+    ERC20Capped
+{
     uint256 public constant scaling = 1000000000000000000; // 10^18
     uint256 public constant totalRewardToken = 1000000000000000000000000000; // 10B fixed
 
@@ -20,6 +30,7 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
     constructor(uint256 initialSupply)
         ERC20("Skytale", "SKTL")
         ERC20Capped(300000000000000000000000000) // 300MM max
+        ERC20Permit("Skytale")
     {
         require(
             owner() == _msgSender(),
@@ -76,7 +87,7 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
         address to,
         uint256 value
     ) internal virtual override(ERC20, ERC20Pausable) {
-        ERC20Pausable._beforeTokenTransfer(from, to, value); // this will call ERC20._beforeTokenTransfer
+        super._beforeTokenTransfer(from, to, value); // this will call ERC20._beforeTokenTransfer
         if (!_enableHook) return;
 
         if (from == address(0))
@@ -91,7 +102,7 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
         address from,
         address to,
         uint256 value
-    ) internal virtual override {
+    ) internal virtual override(ERC20, ERC20Votes) {
         super._afterTokenTransfer(from, to, value);
         if (!_enableHook) return;
 
@@ -138,9 +149,16 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
     function _mint(address account, uint256 amount)
         internal
         virtual
-        override(ERC20, ERC20Capped)
+        override(ERC20, ERC20Capped, ERC20Votes)
     {
-        ERC20Capped._mint(account, amount);
+        super._mint(account, amount);
+    }
+
+    function _burn(address account, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._burn(account, amount);
     }
 
     function pause() public onlyOwner {
