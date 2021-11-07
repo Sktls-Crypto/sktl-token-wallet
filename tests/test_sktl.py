@@ -5,7 +5,7 @@ from brownie import SKTL
 
 from scripts.helpful_scripts import get_account
 
-DECIMALS = 10 ** 18
+DECIMALS = 10**18
 
 
 def round_int_by_decimal_places(value: int, places: int):
@@ -13,6 +13,7 @@ def round_int_by_decimal_places(value: int, places: int):
 
 
 class TestSKTLSimpleDvd(unittest.TestCase):
+
     def assertIntAlmostEqual(self, value1, value2, places: int = 2):
         self.assertEqual(
             round_int_by_decimal_places(value1, places),
@@ -90,9 +91,8 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             250 * DECIMALS,
         )
 
-        self.assertIntAlmostEqual(
-            self.token.rewardBalance(get_account(2)), 250 * DECIMALS
-        )
+        self.assertIntAlmostEqual(self.token.rewardBalance(get_account(2)),
+                                  250 * DECIMALS)
 
     def test_second_rewards(self):
         self.token.rewards(4000 * DECIMALS)
@@ -126,17 +126,16 @@ class TestSKTLSimpleDvd(unittest.TestCase):
     def test_second_transfer(self):
         # test reward, then transfer, then reward
         self.token.rewards(1000 * DECIMALS)
-        self.token.transfer(get_account(3), 500 * DECIMALS, {"from": get_account(2)})
+        self.token.transfer(get_account(3), 500 * DECIMALS,
+                            {"from": get_account(2)})
 
         # make sure the rewardTokenBalance is calculated correctly
         self.assertIntAlmostEqual(
             self.token.rewardTokenBalance(get_account(2)),
-            750/1250 * self.token.rewardTokenBalance(get_account(1))
-        )
+            750 / 1250 * self.token.rewardTokenBalance(get_account(1)))
         self.assertIntAlmostEqual(
             self.token.rewardTokenBalance(get_account(3)),
-            500/1250 * self.token.rewardTokenBalance(get_account(1))
-        )
+            500 / 1250 * self.token.rewardTokenBalance(get_account(1)))
         self.token.rewards(1000 * DECIMALS)
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
@@ -168,11 +167,13 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         # transfer more than it owns
         with brownie.reverts():
-            self.token.transfer(get_account(1), 2000 * DECIMALS, {"from": get_account(2)})
+            self.token.transfer(get_account(1), 2000 * DECIMALS,
+                                {"from": get_account(2)})
 
     def test_set_owner(self):
         with brownie.reverts():
-            self.token.transferOwnership(get_account(2), {"from": get_account(1)})
+            self.token.transferOwnership(get_account(2),
+                                         {"from": get_account(1)})
 
         self.token.transferOwnership(get_account(4), {"from": get_account(0)})
 
@@ -193,14 +194,18 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
     def test_transfer_from_using_allowance(self):
         with brownie.reverts():
-            self.token.transferFrom(get_account(1), get_account(3), 1000 * DECIMALS)
+            self.token.transferFrom(get_account(1), get_account(3),
+                                    1000 * DECIMALS)
 
-        self.token.approve(get_account(3), 500 * DECIMALS, {"from": get_account(1)})
+        self.token.approve(get_account(3), 500 * DECIMALS,
+                           {"from": get_account(1)})
 
         with brownie.reverts():
-            self.token.transferFrom(get_account(1), get_account(3), 501 * DECIMALS, {"from": get_account(3)})
+            self.token.transferFrom(get_account(1), get_account(3),
+                                    501 * DECIMALS, {"from": get_account(3)})
 
-        self.token.transferFrom(get_account(1), get_account(4), 500 * DECIMALS, {"from": get_account(3)})
+        self.token.transferFrom(get_account(1), get_account(4), 500 * DECIMALS,
+                                {"from": get_account(3)})
 
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
@@ -245,14 +250,13 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             125 * DECIMALS,
         )
 
-        self.assertIntAlmostEqual(
-            self.token.rewardBalance(get_account(2)),
-            250 * DECIMALS
-        )
+        self.assertIntAlmostEqual(self.token.rewardBalance(get_account(2)),
+                                  250 * DECIMALS)
 
     def test_set_vault(self):
         with brownie.reverts():
-            self.token.transferOwnership(get_account(2), {"from": get_account(1)})
+            self.token.transferOwnership(get_account(2),
+                                         {"from": get_account(1)})
 
         self.token.transferOwnership(get_account(4), {"from": get_account(0)})
 
@@ -294,7 +298,9 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             self.token.rewardBalance(get_account(1)),
             1000 * DECIMALS,
         )
-        self.token.transfer(get_account(3), 2000 * DECIMALS, {"from": get_account(1)})  # transfer balance + reward
+        self.token.transfer(
+            get_account(3), 2000 * DECIMALS,
+            {"from": get_account(1)})  # transfer balance + reward
 
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
@@ -324,10 +330,12 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             1000 * DECIMALS,
         )
 
-        self.token.approve(get_account(4), 2000 * DECIMALS, {"from": get_account(1)})
-        
+        self.token.approve(get_account(4), 2000 * DECIMALS,
+                           {"from": get_account(1)})
+
         # transfer balance + reward
-        self.token.transferFrom(get_account(1), get_account(3), 2000 * DECIMALS, {"from": get_account(4)})
+        self.token.transferFrom(get_account(1), get_account(3), 2000 * DECIMALS,
+                                {"from": get_account(4)})
 
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
