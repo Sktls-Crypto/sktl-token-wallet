@@ -360,3 +360,29 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         with brownie.reverts():
             self.token.increaseReward(1)
+
+    def test_pause(self):
+        # non-owner can't pause
+        with brownie.reverts():
+            self.token.pause({"from": get_account(1)})
+
+        # not in pause state, can't unpause
+        with brownie.reverts():
+            self.token.unpause({"from": get_account(0)})
+
+        self.token.pause({"from": get_account(0)})
+
+        # paused, can't transfer
+        with brownie.reverts():
+            self.token.transfer(get_account(5), 1000*DECIMALS, {"from": get_account(0)})
+
+        # can't pause twice
+        with brownie.reverts():
+            self.token.pause({"from": get_account(0)})
+
+        # non-owner can't unpause
+        with brownie.reverts():
+            self.token.unpause({"from": get_account(1)})
+
+        self.token.unpause({"from": get_account(0)})
+        self.test_second_transfer()  # transfer test normal

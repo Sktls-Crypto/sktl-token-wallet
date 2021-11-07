@@ -114,4 +114,12 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
     function _mint(address account, uint256 amount) internal virtual override (ERC20, ERC20Capped) {
         ERC20Capped._mint(account, amount);
     }
+
+    function pause() public onlyOwner{
+        super._pause();
+    }
+
+    function unpause() public onlyOwner{
+        super._unpause();
+    }
 }
