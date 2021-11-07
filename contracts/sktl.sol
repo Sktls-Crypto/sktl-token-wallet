@@ -166,9 +166,4 @@ contract SKTL is
     function unpause() public onlyOwner {
         super._unpause();
     }
-
-    // this is more unittest to make sure the hook stays at the initial
-    function isHookEnabled() public view returns (bool) {
-        return _hookEnabled;
-    }
 }
