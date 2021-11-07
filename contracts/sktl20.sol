@@ -1,13 +1,12 @@
-
 // contracts/GLDToken.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
 // import "./contracts/token/ERC20/ERC20.sol";
 
 contract Sktl20 is ERC20 {
-
     uint256 public constant scaling = 1000000000000000000; // 10^18
     uint256 public constant totalRewardToken = 1000000000000000000000000000; // about 10B, and should be fixed
 
@@ -19,7 +18,6 @@ contract Sktl20 is ERC20 {
     uint256 public scaledRemainder = 0;
     bool private _enable_hook = true;
 
-
     constructor(uint256 initialSupply) ERC20("Skytale", "sktb") {
         _owner = _msgSender();
         _vault = _msgSender();
@@ -27,8 +25,14 @@ contract Sktl20 is ERC20 {
         rewardTokenBalance[_msgSender()] = totalRewardToken;
     }
 
-    function reward_balance(address account) public view virtual returns (uint256) {
-        uint256 scaledOwed = scaledRewardPerToken - scaledRewardCreditedTo[account];
+    function reward_balance(address account)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        uint256 scaledOwed = scaledRewardPerToken -
+            scaledRewardCreditedTo[account];
         return (rewardTokenBalance[account] * scaledOwed) / scaling;
     }
 
@@ -44,7 +48,10 @@ contract Sktl20 is ERC20 {
     }
 
     function set_owner(address new_owner) public virtual returns (bool) {
-        require(_msgSender() == _owner, "Only current owner can assign a new owner");
+        require(
+            _msgSender() == _owner,
+            "Only current owner can assign a new owner"
+        );
 
         // todo to check the validity of new_owner
         _owner = new_owner;
@@ -52,7 +59,10 @@ contract Sktl20 is ERC20 {
     }
 
     function set_vault(address new_vault) public virtual returns (bool) {
-        require(_msgSender() == _owner, "Only current owner can assign a new owner");
+        require(
+            _msgSender() == _owner,
+            "Only current owner can assign a new owner"
+        );
         // todo to check the validity of new_vault
 
         _transfer(_vault, new_vault, balanceOf(_vault));
@@ -61,38 +71,41 @@ contract Sktl20 is ERC20 {
         return true;
     }
 
-     function _beforeTokenTransfer(address from, address to, uint256 value)
-         internal virtual override
-     {
-         super._beforeTokenTransfer(from, to, value);
-         if (!_enable_hook) return;
- 
-         if (from == address(0))
-             // minting
-             return;
- 
-         _update(from);
-         _update(to);
-     }
- 
-     function _afterTokenTransfer(
-         address from,
-         address to,
-         uint256 value
-     ) internal virtual override
-     {
-         super._afterTokenTransfer(from, to, value);
-         if (!_enable_hook) return;
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 value
+    ) internal virtual override {
+        super._beforeTokenTransfer(from, to, value);
+        if (!_enable_hook) return;
 
-         if (from == address(0))
-             // miniting
-             return;
- 
-        uint256 scaledTransferPct = (value * scaling) / (balanceOf(from) + value) ;
-        uint256 rewardTokenTransfered = (scaledTransferPct * rewardTokenBalance[from]) / scaling;
+        if (from == address(0))
+            // minting
+            return;
+
+        _update(from);
+        _update(to);
+    }
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 value
+    ) internal virtual override {
+        super._afterTokenTransfer(from, to, value);
+        if (!_enable_hook) return;
+
+        if (from == address(0))
+            // miniting
+            return;
+
+        uint256 scaledTransferPct = (value * scaling) /
+            (balanceOf(from) + value);
+        uint256 rewardTokenTransfered = (scaledTransferPct *
+            rewardTokenBalance[from]) / scaling;
         rewardTokenBalance[from] -= rewardTokenTransfered;
         rewardTokenBalance[to] += rewardTokenTransfered;
-     }
+    }
 
     function rewards(uint256 amount) public {
         require(_msgSender() == _owner, "Only owner can create new rewards");
@@ -105,7 +118,10 @@ contract Sktl20 is ERC20 {
     }
 
     function withdraw() public {
-        require(reward_balance(_msgSender()) > 0, "No rewards left to withdraw");
+        require(
+            reward_balance(_msgSender()) > 0,
+            "No rewards left to withdraw"
+        );
         _update(_msgSender());
     }
 }
