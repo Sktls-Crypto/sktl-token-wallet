@@ -24,7 +24,7 @@ contract SKTL is
     mapping(address => uint256) private _scaledRewardCreditedTo;
     mapping(address => uint256) private _rewardTokenBalance;
     uint256 private _scaledRemainder = 0;
-    bool private _hookEnabled = true;
+    bool private _transferHookEnabled = true;
 
     constructor(uint256 initialSupply)
         ERC20("Skytale", "SKTL")
@@ -55,9 +55,9 @@ contract SKTL is
     function _update(address account) internal {
         uint256 owed = rewardBalance(account);
         if (owed > 0) {
-            _hookEnabled = false;
+            _transferHookEnabled = false;
             _transfer(owner(), account, owed);
-            _hookEnabled = true;
+            _transferHookEnabled = true;
         }
         _scaledRewardCreditedTo[account] = _scaledRewardPerToken;
     }
@@ -86,7 +86,7 @@ contract SKTL is
         uint256 value
     ) internal virtual override(ERC20, ERC20Pausable) {
         super._beforeTokenTransfer(from, to, value); // this will call ERC20._beforeTokenTransfer
-        if (!_hookEnabled) return;
+        if (!_transferHookEnabled) return;
 
         if (from == address(0))
             // minting
@@ -102,7 +102,7 @@ contract SKTL is
         uint256 value
     ) internal virtual override(ERC20, ERC20Votes) {
         super._afterTokenTransfer(from, to, value);
-        if (!_hookEnabled) return;
+        if (!_transferHookEnabled) return;
 
         if (from == address(0))
             // miniting
