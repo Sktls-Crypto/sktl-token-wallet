@@ -9,9 +9,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract SKTL is ERC20, Ownable {
 
     uint256 public constant scaling = 1000000000000000000; // 10^18
-    uint256 public constant totalRewardToken = 1000000000000000000000000000; // about 10B, and should be fixed
+    uint256 public constant totalRewardToken = 1000000000000000000000000000; // 10B fixed
 
-    address private _vault; // vault address to store rewards & donations
     uint256 private _scaledRewardPerToken;
     mapping(address => uint256) private _scaledRewardCreditedTo;
     mapping(address => uint256) private _rewardTokenBalance;
@@ -20,9 +19,11 @@ contract SKTL is ERC20, Ownable {
 
 
     constructor(uint256 initialSupply) ERC20("Skytale", "SKTL") {
-        _vault = _msgSender();
-        _mint(_vault, initialSupply);
-        _rewardTokenBalance[_msgSender()] = totalRewardToken;
+        require(owner() == _msgSender(), "owner is not the same as _msgSender()");
+
+        // owner() will own the unclaimed tokens
+        _mint(owner(), initialSupply);
+        _rewardTokenBalance[owner()] = totalRewardToken;
     }
 
     function rewardBalance(address account) public view virtual returns (uint256) {
@@ -35,19 +36,20 @@ contract SKTL is ERC20, Ownable {
         if (owed > 0) {
             // this is _transfer() without hook, may need to handler revert
             _enableHook = false;
-            _transfer(_vault, account, owed);
+            _transfer(owner(), account, owed);
             _enableHook = true;
         }
         _scaledRewardCreditedTo[account] = _scaledRewardPerToken;
     }
 
-    function setVault(address newVault) public onlyOwner virtual returns (bool){
-        // todo to check the validity of newVault
+    function transferOwnership(address newOwner) public virtual override onlyOwner {
+        _update(newOwner);
+        require(balanceOf(newOwner) == 0, "newOwner is required to hold no tokens");
 
-        _transfer(_vault, newVault, balanceOf(_vault));
-        _vault = newVault;
+        _update(owner()); // make sure transfer full balance of owner()
+        _transfer(owner(), newOwner, balanceOf(owner()));
 
-        return true;
+        super.transferOwnership(newOwner);
     }
 
      function _beforeTokenTransfer(address from, address to, uint256 value)
@@ -88,8 +90,8 @@ contract SKTL is ERC20, Ownable {
         uint256 scaledAvailable = (amount * scaling) + _scaledRemainder;
         _scaledRewardPerToken += scaledAvailable / totalRewardToken;
         _scaledRemainder = scaledAvailable % totalRewardToken;
-        _mint(_vault, amount);
-        _scaledRewardCreditedTo[_vault] = _scaledRewardPerToken;
+        _mint(owner(), amount);
+        _scaledRewardCreditedTo[owner()] = _scaledRewardPerToken;
     }
 
     function withdraw() public {

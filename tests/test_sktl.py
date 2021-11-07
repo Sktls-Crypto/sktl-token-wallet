@@ -252,9 +252,9 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
     def test_set_vault(self):
         with brownie.reverts():
-            self.token.setVault(get_account(2), {"from": get_account(1)})
+            self.token.transferOwnership(get_account(2), {"from": get_account(1)})
 
-        self.token.setVault(get_account(4), {"from": get_account(0)})
+        self.token.transferOwnership(get_account(4), {"from": get_account(0)})
 
         self.assertEqual(
             self.token.rewardBalance(get_account(4)),
@@ -266,7 +266,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             2000 * DECIMALS,
         )
 
-        self.token.rewards(1000 * DECIMALS, {"from": get_account(0)})
+        self.token.rewards(1000 * DECIMALS, {"from": get_account(4)})
 
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
@@ -283,4 +283,3 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             self.token.balanceOf(get_account(4)),
             2750 * DECIMALS,
         )
-
