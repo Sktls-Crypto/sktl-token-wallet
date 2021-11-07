@@ -56,7 +56,8 @@ contract SKTL is ERC20Pausable, ERC20Capped, Ownable {
         super.transferOwnership(newOwner);
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override(ERC20, ERC20Pausable)
+    function _beforeTokenTransfer(address from, address to, uint256 value)
+        internal virtual override(ERC20, ERC20Pausable)
     {
         ERC20Pausable._beforeTokenTransfer(from, to, value); // this will call ERC20._beforeTokenTransfer
         if (!_enableHook) return;
