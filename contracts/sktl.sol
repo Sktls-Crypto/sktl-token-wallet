@@ -18,7 +18,9 @@ contract SKTL is
     ERC20Capped
 {
     uint256 public constant scaling = 1000000000000000000; // 10^18
-    uint256 public constant totalRewardToken = 1000000000000000000000000000; // 10B fixed
+
+    // 10B fixed, to calculate the weight to payout rewards
+    uint256 public constant totalRewardToken = 1000000000000000000000000000; 
 
     uint256 private _scaledRewardPerToken;
     mapping(address => uint256) private _scaledRewardCreditedTo;
@@ -26,7 +28,7 @@ contract SKTL is
     uint256 private _scaledRemainder = 0;
     bool private _transferHookEnabled = true;
 
-    constructor(uint256 initialSupply)
+    constructor()
         ERC20("Skytale", "SKTL")
         ERC20Capped(300000000000000000000000000) // 300MM max
         ERC20Permit("Skytale")
@@ -37,7 +39,7 @@ contract SKTL is
         );
 
         // owner() will own the unclaimed tokens
-        _mint(owner(), initialSupply);
+        _mint(owner(), 200000000000000000000000000); // initial 200MM supply
         _rewardTokenBalance[owner()] = totalRewardToken;
     }
 
