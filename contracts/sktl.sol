@@ -20,7 +20,7 @@ contract SKTL is
     uint256 public constant scaling = 1000000000000000000; // 10^18
 
     // 10B fixed, to calculate the weight to payout rewards
-    uint256 public constant totalRewardToken = 1000000000000000000000000000; 
+    uint256 public constant totalRewardToken = 1000000000000000000000000000;
 
     uint256 private _scaledRewardPerToken;
     mapping(address => uint256) private _scaledRewardCreditedTo;
