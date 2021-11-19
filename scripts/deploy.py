@@ -20,8 +20,12 @@ def deploy_token_farm_and_dapp_token(update_front_end=False):
 def add_reward():
     account = get_account()
     sktl = Sktl20.at('0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD')
-    sktl.rewards(1000 * (10 ** 18), {"from": account})
+    sktl.rewards(5300 * (10 ** 18), {"from": account})
 
+def get_total_supply():
+    account = get_account()
+    sktl = Sktl20.at('0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD')
+    print(f"total supply = {sktl.totalSupply({'from': account}) / 10 ** 18}")
 
 def copy_front_end():
     print("Updating front end...")
