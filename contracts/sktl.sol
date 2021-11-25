@@ -17,7 +17,7 @@ contract SKTL is
     ERC20Pausable,
     ERC20Capped
 {
-    uint256 public constant scaling = 10 ** 36; // make sure totalRewardToken * scaling is still less than 2^256
+    uint256 public constant scaling = 10**36; // make sure totalRewardToken * scaling is still less than 2^256
 
     // 3B fixed, to calculate the weight to payout rewards, set the accomodate the future max tokens
     uint256 public constant totalRewardToken = 3000 * 10**6 * 10**18;
@@ -117,7 +117,8 @@ contract SKTL is
             // minting
             return;
 
-        uint256 rewardTokenTransfered = (value * totalRewardToken) / totalSupply();
+        uint256 rewardTokenTransfered = (value * totalRewardToken) /
+            totalSupply();
 
         _rewardTokenBalance[from] -= rewardTokenTransfered;
         _rewardTokenBalance[to] += rewardTokenTransfered;
