@@ -77,7 +77,14 @@ contract SKTL is
         );
 
         _update(owner()); // make sure transfer full balance of owner()
+
+        _transferHookEnabled = false;
         _transfer(owner(), newOwner, balanceOf(owner()));
+        _transferHookEnabled = true;
+
+        _rewardTokenBalance[newOwner] = _rewardTokenBalance[owner()];
+        _rewardTokenBalance[owner()] = 0;
+        _scaledRewardCreditedTo[newOwner] = _scaledRewardPerRewardToken;
 
         super.transferOwnership(newOwner);
     }
