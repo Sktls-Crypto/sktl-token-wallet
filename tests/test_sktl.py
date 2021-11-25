@@ -1,9 +1,9 @@
 import unittest
-
 import brownie
 from brownie import SKTL
-
+import random
 from scripts.helpful_scripts import get_account
+from collections import defaultdict
 
 DECIMALS = 10**18
 SCALING = 10**36
@@ -16,10 +16,12 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             value1,
             value2,
             msg: str = None,
-            places: int = 10,  # decimal places in %
+            places: int = 12,  # decimal places in %
     ):
-        self.assertLessEqual(value1 / value2, 1 + (10**-places))
-        self.assertGreaterEqual(value1 / value2, 1 - (10**-places))
+        if msg is not None:
+            msg += f", {value1=} {value2=}"
+        self.assertLessEqual(value1 / value2, 1 + (10**-places), msg)
+        self.assertGreaterEqual(value1 / value2, 1 - (10**-places), msg)
 
     def setUp(self):
         self.init_token = 200 * 10**6  # 200 MM
@@ -389,3 +391,59 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         self.token.unpause({"from": get_account(0)})
         self.test_transfer_after_rewards()  # transfer test normal
+
+    def test_transfer_same_account(self):
+        """
+        support transfer same account
+        no ill effect on the reward, except the reward will be withdrawn
+        """
+        rewards = 3000
+        self.token.increaseReward(rewards * DECIMALS)
+
+        self.assertEqual(
+            self.token.balanceOf(get_account(3)),
+            self.init_acc_tokens[3] * DECIMALS,
+        )
+
+        self.token.transfer(get_account(3), 1 * DECIMALS,
+                            {"from": get_account(3)})
+
+        scaled_reward_balance3 = rewards * DECIMALS * self.init_acc_tokens[
+            3] / self.init_token
+        self.assertEqual(
+            self.token.balanceOf(get_account(3)),
+            self.init_acc_tokens[3] * DECIMALS + scaled_reward_balance3,
+        )
+
+    def test_random_transfer_and_reward(self):
+        random.seed('a')
+        init_acc_tokens = self.init_acc_tokens + [0, 0, 0, 100 * 10**6]
+        init_acc_tokens[0] = 100 * 10**6 - sum(self.init_acc_tokens)
+        transfered_record = defaultdict(int)  # {account => amt}
+
+        for loop in range(10):
+            fromacc = random.randint(0, 9)
+            toacc = random.randint(0, 9)
+
+            while toacc == fromacc:
+                toacc = random.randint(0, 9)
+
+            if self.token.balanceOf(get_account(fromacc)) == 0:
+                continue
+
+            transfer_pct = random.random()
+            transfer_amt = int(self.token.balanceOf(get_account(fromacc)) * transfer_pct)
+            transfered_record[fromacc] -= transfer_amt
+            transfered_record[toacc] += transfer_amt
+            for i in range(10):
+                print(f"{i}: {self.token.balanceOf(get_account(i))}, tran={transfered_record[i]}")
+            print(f"{fromacc=} {toacc=} {transfer_amt=}")
+
+            self.token.transfer(get_account(toacc), transfer_amt,
+                                {"from": get_account(fromacc)})
+
+            for i in (fromacc, toacc):
+                self.assertIntAlmostEqual(
+                    self.token.balanceOf(get_account(i)),
+                    init_acc_tokens[i] * DECIMALS + transfered_record[i],
+                    f"{loop=}: acount[{i}] balance not match")
