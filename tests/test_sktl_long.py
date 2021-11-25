@@ -52,10 +52,10 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         transfered_record = defaultdict(int)  # {account => amt}
         reward_record = defaultdict(int)  # {account => amt}
 
-        for loop in range(20):
+        for loop in range(100):
             # TEST transfer
-            fromacc = random.randint(0, 9)
-            toacc = random.randint(0, 9)
+            fromacc = random.randint(1, 9)
+            toacc = random.randint(1, 9)
 
             while toacc == fromacc:
                 toacc = random.randint(0, 9)
@@ -83,7 +83,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
                     f"{loop=}: acount[{i}] balance not match after transfer")
 
             # TEST Reward
-            reward_amt = int(100000 * random.random() * DECIMALS)
+            reward_amt = int(1000000 * random.random() * DECIMALS)
 
             print()
             print(f"Test reward {loop=} {reward_amt=}")
