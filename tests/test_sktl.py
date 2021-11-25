@@ -220,65 +220,66 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         )
 
     def test_transfer_from_using_allowance(self):
+        transfer = 300
+
+        # not allowed yet
         with brownie.reverts():
             self.token.transferFrom(get_account(1), get_account(3),
-                                    1000 * DECIMALS)
+                                    1000 * DECIMALS, {"from": get_account(0)})
 
-        self.token.approve(get_account(3), 500 * DECIMALS,
+        self.token.approve(get_account(3), transfer * DECIMALS,
                            {"from": get_account(1)})
 
+        # not allow over transferFrom
         with brownie.reverts():
             self.token.transferFrom(get_account(1), get_account(3),
-                                    501 * DECIMALS, {"from": get_account(3)})
+                                    (transfer + 1) * DECIMALS, {"from": get_account(3)})
 
-        self.token.transferFrom(get_account(1), get_account(4), 500 * DECIMALS,
+        self.token.transferFrom(get_account(1), get_account(4), transfer * DECIMALS,
                                 {"from": get_account(3)})
 
+        balance1 = (self.init_acc_tokens[1] - transfer)
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
-            500 * DECIMALS,
+            balance1 * DECIMALS,
         )
+
+        balance4 = (self.init_acc_tokens[4] + transfer)
         self.assertEqual(
             self.token.balanceOf(get_account(4)),
-            500 * DECIMALS,
+            balance4 * DECIMALS,
         )
 
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
+            0
+        )
+        self.assertEqual(
             self.token.rewardBalance(get_account(4)),
+            0
         )
 
         # make sure the simple reward works
-
-        self.token.increaseReward(1000 * DECIMALS)
-
-        self.assertEqual(
-            self.token.scaledRewardPerToken(),
-            1000 * DECIMALS * DECIMALS / self.token.totalRewardToken(),
-        )
+        reward = 1000
+        self.token.increaseReward(reward * DECIMALS)
 
         self.assertEqual(
             self.token.rewardBalance(get_account(0)),
             0,
         )
 
-        # owner has all the rewards so far
-        self.assertEqual(
-            self.token.balanceOf(get_account(0)),
-            3000 * DECIMALS,
-        )
-
-        self.assertEqual(
+        self.assertIntAlmostEqual(
             self.token.rewardBalance(get_account(1)),
-            125 * DECIMALS,
+            reward * DECIMALS * balance1 / self.init_token,
         )
-        self.assertEqual(
+        self.assertIntAlmostEqual(
             self.token.rewardBalance(get_account(4)),
-            125 * DECIMALS,
+            reward * DECIMALS * balance4 / self.init_token,
         )
-
-        self.assertIntAlmostEqual(self.token.rewardBalance(get_account(2)),
-                                  250 * DECIMALS)
+        self.assertIntAlmostEqual(
+            self.token.rewardBalance(get_account(3)),
+            reward * DECIMALS * self.init_acc_tokens[3] / self.init_token,
+        )
 
     def test_set_vault(self):
         with brownie.reverts():
