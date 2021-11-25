@@ -15,66 +15,85 @@ def round_int_by_decimal_places(value: int, places: int):
 class TestSKTLSimpleDvd(unittest.TestCase):
 
     def assertIntAlmostEqual(self, value1, value2, places: int = 2):
-        self.assertEqual(
-            round_int_by_decimal_places(value1, places),
-            round_int_by_decimal_places(value2, places),
-        )
+        # self.assertEqual(
+        #     round_int_by_decimal_places(value1, places),
+        #     round_int_by_decimal_places(value2, places),
+        # )
+        self.assertEqual(value1, value2)
 
     def setUp(self):
-        print(get_account(0))
-        self.token = SKTL.deploy(4000 * DECIMALS, {"from": get_account(0)})
-        self.token.transfer(get_account(1), 1000 * DECIMALS)
-        self.token.transfer(get_account(2), 1000 * DECIMALS)
+        self.init_token = 200 * 10**6  # 200 MM
+        self.init_donation_pool = self.init_token // 2
+        self.init_acc_tokens = [0, 1000, 2000, 3000, 7000, 13000]
+
+        self.token = SKTL.deploy({"from": get_account(0)})
+        for i in range(1, len(self.init_acc_tokens)):
+            self.token.transfer(get_account(i),
+                                self.init_acc_tokens[i] * DECIMALS)
+
+        self.dontation_pool_acc = 9
+        self.token.transfer(get_account(self.dontation_pool_acc),
+                            self.init_donation_pool *
+                            DECIMALS)  # this is the donation pool
 
     def test_init_wallets(self):
         self.assertEqual(
             self.token.balanceOf(get_account(0)),
-            2000 * DECIMALS,
+            (self.init_token - self.init_donation_pool - sum(self.init_acc_tokens)) * DECIMALS,
             "original account balance failed after init transfer",
         )
+
+        for i in range(1, len(self.init_acc_tokens)):
+            self.assertEqual(
+                self.token.balanceOf(get_account(i)),
+                self.init_acc_tokens[i] * DECIMALS,
+                f"original account[{i}] balance failed after init transfer",
+            )
+
         self.assertEqual(
-            self.token.balanceOf(get_account(1)),
-            1000 * DECIMALS,
-            "original account1 balance failed after init transfer",
-        )
-        self.assertEqual(
-            self.token.balanceOf(get_account(2)),
-            1000 * DECIMALS,
-            "original account2 balance failed after init transfer",
+            self.token.balanceOf(get_account(self.dontation_pool_acc)),
+            self.init_donation_pool * DECIMALS,
+            "original donation pool balance failed after init transfer",
         )
 
     def test_init_reward_tokens(self):
         # check the rewardToken
         total_reward_token = self.token.totalRewardToken()
         half_token = int(total_reward_token / 2)
-        quarter_token = int(total_reward_token / 4)
 
         self.assertEqual(
-            int(self.token.rewardTokenBalance(get_account(0)) / DECIMALS),
+            int(
+                self.token.rewardTokenBalance(
+                    get_account(self.dontation_pool_acc)) / DECIMALS),
             int(half_token / DECIMALS),
-            "Failed in init rewardToken",
+            "Donation pool doesn't have half rewardToken",
         )
 
-        self.assertEqual(
-            int(self.token.rewardTokenBalance(get_account(1)) / DECIMALS),
-            int(quarter_token / DECIMALS),
-            "Failed in init rewardToken",
+        self.assertIntAlmostEqual(
+            int(self.token.rewardTokenBalance(get_account(1))),
+            int((self.init_acc1_token / self.init_token) * total_reward_token),
         )
 
-        self.assertEqual(
-            int(self.token.rewardTokenBalance(get_account(2)) / DECIMALS),
-            int(quarter_token / DECIMALS),
-            "Failed in init rewardToken",
-        )
+        self.assertIntAlmostEqual(
+            int(self.token.rewardTokenBalance(get_account(2))),
+            int((self.init_acc2_token / self.init_token) * total_reward_token),
+            6)
+
+        self.assertIntAlmostEqual(
+            int(self.token.rewardTokenBalance(get_account(3))),
+            int((self.init_acc3_token / self.init_token) * total_reward_token),
+            6)
 
     def test_simple_rewards(self):
-        self.token.increaseReward(1000 * DECIMALS)
+        rewards = 10000
+        self.token.increaseReward(rewards * DECIMALS)
 
         self.assertEqual(
             self.token.scaledRewardPerToken(),
-            1000 * DECIMALS * DECIMALS / self.token.totalRewardToken(),
+            rewards * DECIMALS * DECIMALS / self.token.totalRewardToken(),
         )
 
+        # owner should have any rewardBalance
         self.assertEqual(
             self.token.rewardBalance(get_account(0)),
             0,
@@ -83,16 +102,18 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         # owner has all the rewards so far
         self.assertEqual(
             self.token.balanceOf(get_account(0)),
-            3000 * DECIMALS,
+            (100 * 10**6 - 2000 + rewards) * DECIMALS,
         )
 
-        self.assertEqual(
+        self.assertIntAlmostEqual(
             self.token.rewardBalance(get_account(1)),
-            250 * DECIMALS,
+            ((rewards * 1000) / 200 * 10**6),
         )
 
-        self.assertIntAlmostEqual(self.token.rewardBalance(get_account(2)),
-                                  250 * DECIMALS)
+        self.assertIntAlmostEqual(
+            self.token.rewardBalance(get_account(2)),
+            ((rewards * 1000) / 200 * 10**6),
+        )
 
     def test_second_rewards(self):
         self.token.increaseReward(4000 * DECIMALS)
@@ -374,7 +395,8 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         # paused, can't transfer
         with brownie.reverts():
-            self.token.transfer(get_account(5), 1000*DECIMALS, {"from": get_account(0)})
+            self.token.transfer(get_account(5), 1000 * DECIMALS,
+                                {"from": get_account(0)})
 
         # can't pause twice
         with brownie.reverts():
