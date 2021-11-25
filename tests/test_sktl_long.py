@@ -9,7 +9,7 @@ DECIMALS = 10**18
 SCALING = 10**36
 
 
-class TestSKTLSimpleDvd(unittest.TestCase):
+class TestSKTLLongTests(unittest.TestCase):
 
     def assertIntAlmostEqual(
             self,
