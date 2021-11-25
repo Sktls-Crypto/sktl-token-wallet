@@ -17,10 +17,10 @@ contract SKTL is
     ERC20Pausable,
     ERC20Capped
 {
-    uint256 public constant scaling = 1000000000000000000; // 10^18
+    uint256 public constant scaling = 10 ** 36; // make sure totalRewardToken * scaling is still less than 2^256
 
-    // 300MM fixed, to calculate the weight to payout rewards, set the accomodate the future max tokens
-    uint256 public constant totalRewardToken = 300000000000000000000000000;
+    // 3B fixed, to calculate the weight to payout rewards, set the accomodate the future max tokens
+    uint256 public constant totalRewardToken = 3000 * 10**6 * 10**18;
 
     uint256 private _scaledRewardPerRewardToken;
     mapping(address => uint256) private _scaledRewardCreditedTo;
