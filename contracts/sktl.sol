@@ -110,10 +110,8 @@ contract SKTL is
             // minting
             return;
 
-        uint256 scaledTransferPct = (value * scaling) /
-            (balanceOf(from) + value);
-        uint256 rewardTokenTransfered = (scaledTransferPct *
-            _rewardTokenBalance[from]) / scaling;
+        uint256 rewardTokenTransfered = (value * totalRewardToken) / totalSupply();
+
         _rewardTokenBalance[from] -= rewardTokenTransfered;
         _rewardTokenBalance[to] += rewardTokenTransfered;
     }
