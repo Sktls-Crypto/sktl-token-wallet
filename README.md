@@ -11,7 +11,7 @@ To run unittests on the contracts
 ```
 brownie compile
 
-brownie test tests/test_sktl.py --verbose
+brownie test tests --verbose
 
 ```
 
