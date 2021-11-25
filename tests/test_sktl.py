@@ -322,22 +322,27 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             0,
         )
 
-    def test_transfer_from_max(self):
-        self.token.increaseReward(4000 * DECIMALS)
+    def test_transferfrom_balance_plus_reward(self):
+        rewards = 3000
+        self.token.increaseReward(rewards * DECIMALS)
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
-            1000 * DECIMALS,
+            self.init_acc_tokens[1] * DECIMALS,
         )
+        scaled_reward_balance1 = rewards * DECIMALS * self.init_acc_tokens[
+            1] / self.init_token
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
-            1000 * DECIMALS,
+            scaled_reward_balance1,
         )
 
-        self.token.approve(get_account(4), 2000 * DECIMALS,
+        total_transfer = self.init_acc_tokens[
+            1] * DECIMALS + scaled_reward_balance1
+        self.token.approve(get_account(4), total_transfer,
                            {"from": get_account(1)})
 
         # transfer balance + reward
-        self.token.transferFrom(get_account(1), get_account(3), 2000 * DECIMALS,
+        self.token.transferFrom(get_account(1), get_account(3), total_transfer,
                                 {"from": get_account(4)})
 
         self.assertEqual(
@@ -348,9 +353,13 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             self.token.rewardBalance(get_account(1)),
             0,
         )
+
+        scaled_reward_balance3 = rewards * DECIMALS * self.init_acc_tokens[
+            3] / self.init_token
         self.assertEqual(
             self.token.balanceOf(get_account(3)),
-            2000 * DECIMALS,
+            self.init_acc_tokens[3] * DECIMALS + total_transfer +
+            scaled_reward_balance3,
         )
         self.assertEqual(
             self.token.rewardBalance(get_account(3)),
@@ -359,7 +368,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
     def test_max_supply(self):
         three_mm = 300 * 10**6
-        self.token.increaseReward((three_mm - 4000) * DECIMALS)
+        self.token.increaseReward((three_mm - self.init_token) * DECIMALS)
 
         with brownie.reverts():
             self.token.increaseReward(1)
@@ -389,4 +398,4 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             self.token.unpause({"from": get_account(1)})
 
         self.token.unpause({"from": get_account(0)})
-        self.test_second_transfer()  # transfer test normal
+        self.test_transfer_after_rewards()  # transfer test normal
