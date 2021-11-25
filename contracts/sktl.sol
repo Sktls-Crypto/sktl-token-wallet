@@ -138,10 +138,6 @@ contract SKTL is
         _update(_msgSender());
     }
 
-    function scaledRewardPerToken() public view virtual returns (uint256) {
-        return _scaledRewardPerRewardToken;
-    }
-
     function rewardTokenBalance(address addr)
         public
         view

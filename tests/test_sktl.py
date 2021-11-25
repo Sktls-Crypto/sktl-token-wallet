@@ -89,11 +89,6 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         rewards = 10000
         self.token.increaseReward(rewards * DECIMALS)
 
-        self.assertEqual(
-            self.token.scaledRewardPerToken(),
-            rewards * DECIMALS * SCALING // self.token.totalRewardToken(),
-        )
-
         # owner should not have any rewardBalance
         self.assertEqual(
             self.token.rewardBalance(get_account(0)),
@@ -119,11 +114,6 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         rewards = [4000, 8000]
         for i in range(len(rewards)):
             self.token.increaseReward(rewards[i] * DECIMALS)
-
-        self.assertEqual(
-            self.token.scaledRewardPerToken(),
-            sum(rewards) * DECIMALS * SCALING / self.token.totalRewardToken(),
-        )
 
         self.assertEqual(
             self.token.rewardBalance(get_account(0)),
