@@ -50,8 +50,10 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         init_acc_tokens = self.init_acc_tokens + [0, 0, 0, 100 * 10**6]
         init_acc_tokens[0] = 100 * 10**6 - sum(self.init_acc_tokens)
         transfered_record = defaultdict(int)  # {account => amt}
+        reward_record = defaultdict(int)  # {account => amt}
 
         for loop in range(20):
+            # TEST transfer
             fromacc = random.randint(0, 9)
             toacc = random.randint(0, 9)
 
@@ -65,6 +67,8 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             transfer_amt = int(self.token.balanceOf(get_account(fromacc)) * transfer_pct)
             transfered_record[fromacc] -= transfer_amt
             transfered_record[toacc] += transfer_amt
+            print()
+            print(f"Test Transfer {loop=}")
             for i in range(10):
                 print(f"{i}: {self.token.balanceOf(get_account(i))}, tran={transfered_record[i]}")
             print(f"{fromacc=} {toacc=} {transfer_amt=}")
@@ -75,5 +79,29 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             for i in (fromacc, toacc):
                 self.assertIntAlmostEqual(
                     self.token.balanceOf(get_account(i)),
-                    init_acc_tokens[i] * DECIMALS + transfered_record[i],
-                    f"{loop=}: acount[{i}] balance not match")
+                    init_acc_tokens[i] * DECIMALS + transfered_record[i] + reward_record[i],
+                    f"{loop=}: acount[{i}] balance not match after transfer")
+
+            # TEST Reward
+            reward_amt = int(100000 * random.random() * DECIMALS)
+
+            print()
+            print(f"Test reward {loop=} {reward_amt=}")
+
+            for i in range(10):
+                tot_balance = self.token.balanceOf(get_account(i)) + self.token.rewardBalance(get_account(i))
+                reward_record[i] += int(reward_amt * tot_balance / self.token.totalSupply())
+            self.token.increaseReward(reward_amt, {"from": get_account(0)})
+
+            for i in range(10):
+                print(f"{i}: rewardBalance={self.token.rewardBalance(get_account(i))} reward_rec={reward_record[i]}")
+
+            # skip 1, because it's the owner
+            for i in range(1, 10):
+                tot_balance = self.token.balanceOf(get_account(i)) + self.token.rewardBalance(get_account(i))
+                if tot_balance == 0:
+                    continue
+                self.assertIntAlmostEqual(
+                    self.token.balanceOf(get_account(i)) + self.token.rewardBalance(get_account(i)),
+                    init_acc_tokens[i] * DECIMALS + transfered_record[i] + reward_record[i],
+                    f"{loop=}: acount[{i}] balance not match after reward")
