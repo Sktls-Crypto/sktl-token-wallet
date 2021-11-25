@@ -186,7 +186,8 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
     def test_set_owner(self):
         rewards = [1000, 2000]
-        self.token.increaseReward(rewards[0] * DECIMALS, {"from": get_account(0)})
+        self.token.increaseReward(rewards[0] * DECIMALS,
+                                  {"from": get_account(0)})
 
         with brownie.reverts():
             self.token.transferOwnership(get_account(2),
@@ -194,18 +195,22 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         # make sure new owner can't hold tokens
         with brownie.reverts():
-            self.token.transferOwnership(get_account(4), {"from": get_account(0)})
+            self.token.transferOwnership(get_account(4),
+                                         {"from": get_account(0)})
 
         self.token.transferOwnership(get_account(8), {"from": get_account(0)})
 
         # make old owner can't reward
         with brownie.reverts():
-            self.token.increaseReward(rewards[0] * DECIMALS, {"from": get_account(0)})
+            self.token.increaseReward(rewards[0] * DECIMALS,
+                                      {"from": get_account(0)})
 
         # new owner can reward
-        self.token.increaseReward(rewards[1] * DECIMALS, {"from": get_account(8)})
+        self.token.increaseReward(rewards[1] * DECIMALS,
+                                  {"from": get_account(8)})
 
-        scaled_reward_token = sum(rewards) * DECIMALS * self.init_acc_tokens[1] / self.init_token
+        scaled_reward_token = sum(
+            rewards) * DECIMALS * self.init_acc_tokens[1] / self.init_token
 
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
@@ -233,10 +238,11 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         # not allow over transferFrom
         with brownie.reverts():
             self.token.transferFrom(get_account(1), get_account(3),
-                                    (transfer + 1) * DECIMALS, {"from": get_account(3)})
+                                    (transfer + 1) * DECIMALS,
+                                    {"from": get_account(3)})
 
-        self.token.transferFrom(get_account(1), get_account(4), transfer * DECIMALS,
-                                {"from": get_account(3)})
+        self.token.transferFrom(get_account(1), get_account(4),
+                                transfer * DECIMALS, {"from": get_account(3)})
 
         balance1 = (self.init_acc_tokens[1] - transfer)
         self.assertEqual(
@@ -250,14 +256,8 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             balance4 * DECIMALS,
         )
 
-        self.assertEqual(
-            self.token.rewardBalance(get_account(1)),
-            0
-        )
-        self.assertEqual(
-            self.token.rewardBalance(get_account(4)),
-            0
-        )
+        self.assertEqual(self.token.rewardBalance(get_account(1)), 0)
+        self.assertEqual(self.token.rewardBalance(get_account(4)), 0)
 
         # make sure the simple reward works
         reward = 1000
@@ -281,53 +281,24 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             reward * DECIMALS * self.init_acc_tokens[3] / self.init_token,
         )
 
-    def test_set_vault(self):
-        with brownie.reverts():
-            self.token.transferOwnership(get_account(2),
-                                         {"from": get_account(1)})
-
-        self.token.transferOwnership(get_account(4), {"from": get_account(0)})
-
-        self.assertEqual(
-            self.token.rewardBalance(get_account(4)),
-            0 * DECIMALS,
-        )
-
-        self.assertEqual(
-            self.token.balanceOf(get_account(4)),
-            2000 * DECIMALS,
-        )
-
-        self.token.increaseReward(1000 * DECIMALS, {"from": get_account(4)})
-
-        self.assertEqual(
-            self.token.rewardBalance(get_account(1)),
-            250 * DECIMALS,
-        )
-        self.token.withdraw({"from": get_account(1)})
+    def test_transfer_balance_plus_reward(self):
+        rewards = 3000
+        self.token.increaseReward(rewards * DECIMALS)
 
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
-            1250 * DECIMALS,
+            self.init_acc_tokens[1] * DECIMALS,
         )
-
-        self.assertEqual(
-            self.token.balanceOf(get_account(4)),
-            2750 * DECIMALS,
-        )
-
-    def test_transfer_max(self):
-        self.token.increaseReward(4000 * DECIMALS)
-        self.assertEqual(
-            self.token.balanceOf(get_account(1)),
-            1000 * DECIMALS,
-        )
+        scaled_reward_balance1 = rewards * DECIMALS * self.init_acc_tokens[
+            1] / self.init_token
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
-            1000 * DECIMALS,
+            scaled_reward_balance1,
         )
+        total_transfer = self.init_acc_tokens[
+            1] * DECIMALS + scaled_reward_balance1
         self.token.transfer(
-            get_account(3), 2000 * DECIMALS,
+            get_account(3), total_transfer,
             {"from": get_account(1)})  # transfer balance + reward
 
         self.assertEqual(
@@ -338,9 +309,13 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             self.token.rewardBalance(get_account(1)),
             0,
         )
+
+        scaled_reward_balance3 = rewards * DECIMALS * self.init_acc_tokens[
+            3] / self.init_token
         self.assertEqual(
             self.token.balanceOf(get_account(3)),
-            2000 * DECIMALS,
+            self.init_acc_tokens[3] * DECIMALS + total_transfer +
+            scaled_reward_balance3,
         )
         self.assertEqual(
             self.token.rewardBalance(get_account(3)),
