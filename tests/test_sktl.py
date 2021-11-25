@@ -148,7 +148,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
     def test_transfer_after_rewards(self):
         # test reward, then transfer, then reward
         rewards = 1000
-        transfer = 300
+        transfer = 301.0000001
 
         self.token.increaseReward(rewards * DECIMALS)
 
@@ -180,29 +180,43 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         # transfer more than it owns
         with brownie.reverts():
-            self.token.transfer(get_account(1), 2000 * DECIMALS,
+            self.token.transfer(get_account(1),
+                                self.init_acc_tokens[2] * 2 * DECIMALS,
                                 {"from": get_account(2)})
 
     def test_set_owner(self):
+        rewards = [1000, 2000]
+        self.token.increaseReward(rewards[0] * DECIMALS, {"from": get_account(0)})
+
         with brownie.reverts():
             self.token.transferOwnership(get_account(2),
                                          {"from": get_account(1)})
 
-        self.token.transferOwnership(get_account(4), {"from": get_account(0)})
-
+        # make sure new owner can't hold tokens
         with brownie.reverts():
-            self.token.increaseReward(1000 * DECIMALS, {"from": get_account(0)})
+            self.token.transferOwnership(get_account(4), {"from": get_account(0)})
 
-        self.token.increaseReward(1000 * DECIMALS, {"from": get_account(4)})
+        self.token.transferOwnership(get_account(8), {"from": get_account(0)})
+
+        # make old owner can't reward
+        with brownie.reverts():
+            self.token.increaseReward(rewards[0] * DECIMALS, {"from": get_account(0)})
+
+        # new owner can reward
+        self.token.increaseReward(rewards[1] * DECIMALS, {"from": get_account(8)})
+
+        scaled_reward_token = sum(rewards) * DECIMALS * self.init_acc_tokens[1] / self.init_token
 
         self.assertEqual(
             self.token.rewardBalance(get_account(1)),
-            250 * DECIMALS,
+            scaled_reward_token,
         )
+
         self.token.withdraw({"from": get_account(1)})
+
         self.assertEqual(
             self.token.balanceOf(get_account(1)),
-            1250 * DECIMALS,
+            self.init_acc_tokens[1] * DECIMALS + scaled_reward_token,
         )
 
     def test_transfer_from_using_allowance(self):
