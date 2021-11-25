@@ -19,10 +19,10 @@ contract SKTL is
 {
     uint256 public constant scaling = 1000000000000000000; // 10^18
 
-    // 10B fixed, to calculate the weight to payout rewards
-    uint256 public constant totalRewardToken = 1000000000000000000000000000;
+    // 300MM fixed, to calculate the weight to payout rewards, set the accomodate the future max tokens
+    uint256 public constant totalRewardToken = 300000000000000000000000000;
 
-    uint256 private _scaledRewardPerToken;
+    uint256 private _scaledRewardPerRewardToken;
     mapping(address => uint256) private _scaledRewardCreditedTo;
     mapping(address => uint256) private _rewardTokenBalance;
     uint256 private _scaledRemainder = 0;
@@ -49,7 +49,7 @@ contract SKTL is
         virtual
         returns (uint256)
     {
-        uint256 scaledOwed = _scaledRewardPerToken -
+        uint256 scaledOwed = _scaledRewardPerRewardToken -
             _scaledRewardCreditedTo[account];
         return (_rewardTokenBalance[account] * scaledOwed) / scaling;
     }
@@ -61,7 +61,7 @@ contract SKTL is
             _transfer(owner(), account, owed);
             _transferHookEnabled = true;
         }
-        _scaledRewardCreditedTo[account] = _scaledRewardPerToken;
+        _scaledRewardCreditedTo[account] = _scaledRewardPerRewardToken;
     }
 
     function transferOwnership(address newOwner)
@@ -107,7 +107,7 @@ contract SKTL is
         if (!_transferHookEnabled) return;
 
         if (from == address(0))
-            // miniting
+            // minting
             return;
 
         uint256 scaledTransferPct = (value * scaling) /
@@ -123,9 +123,9 @@ contract SKTL is
 
         // scale the deposit and add the previous remainder
         uint256 scaledAvailable = (amount * scaling) + _scaledRemainder;
-        _scaledRewardPerToken += scaledAvailable / totalRewardToken;
+        _scaledRewardPerRewardToken += scaledAvailable / totalRewardToken;
         _scaledRemainder = scaledAvailable % totalRewardToken;
-        _scaledRewardCreditedTo[owner()] = _scaledRewardPerToken;
+        _scaledRewardCreditedTo[owner()] = _scaledRewardPerRewardToken;
     }
 
     function withdraw() public {
@@ -134,7 +134,7 @@ contract SKTL is
     }
 
     function scaledRewardPerToken() public view virtual returns (uint256) {
-        return _scaledRewardPerToken;
+        return _scaledRewardPerRewardToken;
     }
 
     function rewardTokenBalance(address addr)
