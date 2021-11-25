@@ -46,13 +46,13 @@ class TestSKTLSimpleDvd(unittest.TestCase):
                             DECIMALS)  # this is the donation pool
 
     def test_random_transfer_and_reward(self):
-        random.seed('a')
+        # random.seed('a')
         init_acc_tokens = self.init_acc_tokens + [0, 0, 0, 100 * 10**6]
         init_acc_tokens[0] = 100 * 10**6 - sum(self.init_acc_tokens)
         transfered_record = defaultdict(int)  # {account => amt}
         reward_record = defaultdict(int)  # {account => amt}
 
-        for loop in range(100):
+        for loop in range(20):
             # TEST transfer
             fromacc = random.randint(1, 9)
             toacc = random.randint(1, 9)

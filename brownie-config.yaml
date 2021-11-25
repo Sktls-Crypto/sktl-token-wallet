@@ -8,12 +8,12 @@ reports:
     - MockERC20
 dependencies:
   - smartcontractkit/chainlink-brownie-contracts@0.2.1
-  - OpenZeppelin/openzeppelin-contracts@4.3.2
+  - OpenZeppelin/openzeppelin-contracts@4.3.3
 compiler:
   solc:
     remappings:
       - '@chainlink=smartcontractkit/chainlink-brownie-contracts@0.2.1'
-      - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.3.2'
+      - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.3.3'
 autofetch_sources: True
 dotenv: .env
 networks:
