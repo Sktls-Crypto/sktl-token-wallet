@@ -9,22 +9,17 @@ DECIMALS = 10**18
 SCALING = 10**36
 
 
-def round_int_by_decimal_places(value: int, places: int):
-    return round(value / pow(10, places))
-
-
 class TestSKTLSimpleDvd(unittest.TestCase):
 
-    def assertIntAlmostEqual(self,
-                             value1,
-                             value2,
-                             places: int = 1,
-                             msg: str = None):
-        self.assertEqual(
-            round_int_by_decimal_places(value1, places),
-            round_int_by_decimal_places(value2, places),
-            msg
-        )
+    def assertIntAlmostEqual(
+            self,
+            value1,
+            value2,
+            msg: str = None,
+            places: int = 10,  # decimal places in %
+    ):
+        self.assertLessEqual(value1 / value2, 1 + (10**-places))
+        self.assertGreaterEqual(value1 / value2, 1 - (10**-places))
 
     def setUp(self):
         self.init_token = 200 * 10**6  # 200 MM
@@ -108,14 +103,15 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         # owner has all the rewards so far
         self.assertEqual(
             self.token.balanceOf(get_account(0)),
-            (self.init_token - self.init_donation_pool - sum(self.init_acc_tokens) + rewards) * DECIMALS,
+            (self.init_token - self.init_donation_pool -
+             sum(self.init_acc_tokens) + rewards) * DECIMALS,
         )
 
         for i in range(1, len(self.init_acc_tokens)):
             self.assertIntAlmostEqual(
                 self.token.rewardBalance(get_account(i)),
-                int((rewards * self.init_acc_tokens[i] * DECIMALS) // self.init_token),
-                1,
+                int((rewards * self.init_acc_tokens[i] * DECIMALS) //
+                    self.init_token),
                 f"account[{i}] reward balance doesn't match",
             )
 
@@ -137,52 +133,44 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         # owner has all the rewards so far
         self.assertEqual(
             self.token.balanceOf(get_account(0)),
-            (self.init_token - self.init_donation_pool - sum(self.init_acc_tokens) + sum(rewards)) * DECIMALS,
+            (self.init_token - self.init_donation_pool -
+             sum(self.init_acc_tokens) + sum(rewards)) * DECIMALS,
         )
 
         for i in range(1, len(self.init_acc_tokens)):
             self.assertIntAlmostEqual(
                 self.token.rewardBalance(get_account(i)),
-                int((sum(rewards) * self.init_acc_tokens[i] * DECIMALS) // self.init_token),
-                1,
+                int((sum(rewards) * self.init_acc_tokens[i] * DECIMALS) /
+                    self.init_token),
                 f"account[{i}] reward balance doesn't match after multiple rewards",
             )
 
-    def test_second_transfer(self):
+    def test_transfer_after_rewards(self):
         # test reward, then transfer, then reward
-        self.token.increaseReward(1000 * DECIMALS)
-        self.token.transfer(get_account(3), 500 * DECIMALS,
+        rewards = 1000
+        transfer = 300
+
+        self.token.increaseReward(rewards * DECIMALS)
+
+        self.token.transfer(get_account(3), transfer * DECIMALS,
                             {"from": get_account(2)})
 
-        # make sure the rewardTokenBalance is calculated correctly
-        self.assertIntAlmostEqual(
-            self.token.rewardTokenBalance(get_account(2)),
-            750 / 1250 * self.token.rewardTokenBalance(get_account(1)))
-        self.assertIntAlmostEqual(
-            self.token.rewardTokenBalance(get_account(3)),
-            500 / 1250 * self.token.rewardTokenBalance(get_account(1)))
-        self.token.increaseReward(1000 * DECIMALS)
-        self.assertEqual(
-            self.token.rewardBalance(get_account(1)),
-            500 * DECIMALS,
-        )
-        # 1250 - 500
+        # make sure the rewardBalance is Zero
+        self.assertEqual(self.token.rewardBalance(get_account(2)), 0)
+        self.assertEqual(self.token.rewardBalance(get_account(3)), 0)
+
+        balance2 = (self.init_acc_tokens[2] *
+                    (1 + rewards / self.init_token)) - transfer
+        balance3 = (self.init_acc_tokens[3] *
+                    (1 + rewards / self.init_token)) + transfer
+
         self.assertIntAlmostEqual(
             self.token.balanceOf(get_account(2)),
-            750 * DECIMALS,
-        )
-        # 15% * 1000
-        self.assertIntAlmostEqual(
-            self.token.rewardBalance(get_account(2)),
-            150 * DECIMALS,
-        )
-        self.assertIntAlmostEqual(
-            self.token.rewardBalance(get_account(3)),
-            100 * DECIMALS,
+            balance2 * DECIMALS,
         )
         self.assertIntAlmostEqual(
             self.token.balanceOf(get_account(3)),
-            500 * DECIMALS,
+            balance3 * DECIMALS,
         )
 
     def test_should_fail(self):
