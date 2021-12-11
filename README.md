@@ -6,11 +6,16 @@ For more details, visit https://sktls.com
 
 ## Developement Details
 
+### to setup
+```
+pip install -r requirements.txt
+```
+
 ### Unittest
 To run unittests on the contracts
 ```
+# python-based tests
 brownie compile
-
 brownie test tests --verbose
 
 ```
