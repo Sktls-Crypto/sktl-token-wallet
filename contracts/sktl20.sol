@@ -8,13 +8,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Sktl20 is ERC20 {
     uint256 public constant scaling = 1000000000000000000; // 10^18
-    uint256 public constant totalRewardToken = 1000000000000000000000000000; // about 10B, and should be fixed
+    uint256 public totalTokens = 0;
 
     address internal _owner; // owner who can mint
     address internal _vault; // vault address to store the rewards & donations
-    uint256 public scaledRewardPerToken;
-    mapping(address => uint256) public scaledRewardCreditedTo;
-    mapping(address => uint256) public rewardTokenBalance;
+    uint256 public scaledRewardPerToken;  // Amount of total rewards per token ever given, scaled by scaling factor
+    mapping(address => uint256) public scaledRewardCreditedTo;  // Amount of scaled reward per token credited to account thus far
     uint256 public scaledRemainder = 0;
     bool private _enable_hook = true;
 
@@ -22,7 +21,7 @@ contract Sktl20 is ERC20 {
         _owner = _msgSender();
         _vault = _msgSender();
         _mint(_vault, initialSupply);
-        rewardTokenBalance[_msgSender()] = totalRewardToken;
+        totalTokens = initialSupply;
     }
 
     function reward_balance(address account)
@@ -31,20 +30,25 @@ contract Sktl20 is ERC20 {
         virtual
         returns (uint256)
     {
+	// Calculate scaled value owed per token for account
         uint256 scaledOwed = scaledRewardPerToken -
             scaledRewardCreditedTo[account];
-        return (rewardTokenBalance[account] * scaledOwed) / scaling;
+        // Return unclaimed portion of total rewards for account
+        // TODO - Does balanceOf return tokens or wei?  What aboouot reward_balance?
+        return (balanceOf[account] * scaledOwed) / scaling;
     }
 
+
+    // Check for and claim any unclaimed account reward balance
     function _update(address account) internal {
         uint256 owed = reward_balance(account);
         if (owed > 0) {
-            // this is _transfer() without hook, may need to handler revert
+            // this is _transfer() without hook, may need to handle revert
             _enable_hook = false;
+            scaledRewardCreditedTo[account] = scaledRewardPerToken;
             _transfer(_vault, account, owed);
             _enable_hook = true;
         }
-        scaledRewardCreditedTo[account] = scaledRewardPerToken;
     }
 
     function set_owner(address new_owner) public virtual returns (bool) {
@@ -71,6 +75,7 @@ contract Sktl20 is ERC20 {
         return true;
     }
 
+    // Before any transfer, claim rewards for the source and destination accts
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -98,22 +103,17 @@ contract Sktl20 is ERC20 {
         if (from == address(0))
             // miniting
             return;
-
-        uint256 scaledTransferPct = (value * scaling) /
-            (balanceOf(from) + value);
-        uint256 rewardTokenTransfered = (scaledTransferPct *
-            rewardTokenBalance[from]) / scaling;
-        rewardTokenBalance[from] -= rewardTokenTransfered;
-        rewardTokenBalance[to] += rewardTokenTransfered;
     }
 
     function rewards(uint256 amount) public {
         require(_msgSender() == _owner, "Only owner can create new rewards");
         // scale the deposit and add the previous remainder
         uint256 scaledAvailable = (amount * scaling) + scaledRemainder;
-        scaledRewardPerToken += scaledAvailable / totalRewardToken;
-        scaledRemainder = scaledAvailable % totalRewardToken;
+        // Calculate scaled award per token, save remainder
+        scaledRewardPerToken += scaledAvailable / totalTokens;
+        scaledRemainder = scaledAvailable % totalTokens;
         _mint(_vault, amount);
+        totalTokens += amount;
         scaledRewardCreditedTo[_vault] = scaledRewardPerToken;
     }
 
