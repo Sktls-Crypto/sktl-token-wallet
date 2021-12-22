@@ -25,14 +25,13 @@ contract SktlAirdrop is Ownable {
         onlyOwner
     {
         require(
-            _token.balanceOf(_msgSender()) >= (receivers.length * amount),
+            _token.balanceOf(owner()) >= (receivers.length * amount),
             "Owner doesn't have enough balance to airdrop"
         );
 
         for (uint256 i = 0; i < receivers.length; i++) {
             if (_droppedAmounts[receivers[i]] == 0) {
-                _token.transferFrom(_msgSender(), address(this), amount);
-                _token.transfer(receivers[i], amount);
+                _token.transferFrom(owner(), receivers[i], amount);
                 _droppedAmounts[receivers[i]] = amount;
             }
         }
