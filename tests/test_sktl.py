@@ -62,29 +62,6 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             "original donation pool balance failed after init transfer",
         )
 
-    def test_init_reward_tokens(self):
-        # check the rewardToken
-        total_reward_token = self.token.totalRewardToken()
-        half_token = int(total_reward_token / 2)
-
-        self.assertEqual(
-            int(
-                self.token.rewardTokenBalance(get_account(self.dontation_pool_acc))
-                / DECIMALS
-            ),
-            int(half_token / DECIMALS),
-            "Donation pool doesn't have half rewardToken",
-        )
-
-        for i in range(1, len(self.init_acc_tokens)):
-            self.assertEqual(
-                int(self.token.rewardTokenBalance(get_account(i))),
-                int(
-                    ((self.init_acc_tokens[i] * total_reward_token) // self.init_token)
-                ),
-                msg=f"account[{i}] rewardbalance doesn't match",
-            )
-
     def test_simple_rewards(self):
         rewards = 10000
         self.token.increaseReward(rewards * DECIMALS)
@@ -112,6 +89,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
                 self.token.rewardBalance(get_account(i)),
                 int((rewards * self.init_acc_tokens[i] * DECIMALS) // self.init_token),
                 f"account[{i}] reward balance doesn't match",
+                5,
             )
 
     def test_second_rewards(self):
@@ -144,6 +122,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
                     / self.init_token
                 ),
                 f"account[{i}] reward balance doesn't match after multiple rewards",
+                4,
             )
 
     def test_transfer_after_rewards(self):
@@ -169,12 +148,10 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         ) + transfer
 
         self.assertIntAlmostEqual(
-            self.token.balanceOf(get_account(2)),
-            balance2 * DECIMALS,
+            self.token.balanceOf(get_account(2)), balance2 * DECIMALS, "", 4
         )
         self.assertIntAlmostEqual(
-            self.token.balanceOf(get_account(3)),
-            balance3 * DECIMALS,
+            self.token.balanceOf(get_account(3)), balance3 * DECIMALS, "", 4
         )
 
     def test_should_fail(self):

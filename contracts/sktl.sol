@@ -17,14 +17,14 @@ contract SKTL is
     ERC20Pausable,
     ERC20Capped
 {
-    uint256 public constant scaling = 10**36; // make sure totalRewardToken * scaling is still less than 2^256
+    uint256 public constant scaling = 10**10; // make sure rewards * scaling is still less than 2^256
 
     // 3B fixed, to calculate the weight to payout rewards, set the accomodate the future max tokens
-    uint256 public constant totalRewardToken = 3000 * 10**6 * 10**18;
+    // uint256 public constant totalRewardToken = 3000 * 10**6 * 10**18;
 
-    uint256 private _scaledRewardPerRewardToken;
+    uint256 private _scaledRewardPerToken = 0;
     mapping(address => uint256) private _scaledRewardCreditedTo;
-    mapping(address => uint256) private _rewardTokenBalance;
+    // mapping(address => uint256) private _rewardTokenBalance;
     uint256 private _scaledRemainder = 0;
     bool private _transferHookEnabled = true;
 
@@ -40,7 +40,7 @@ contract SKTL is
 
         // owner() will own the unclaimed tokens
         _mint(owner(), 200000000000000000000000000); // initial 200MM supply
-        _rewardTokenBalance[owner()] = totalRewardToken;
+        // _rewardTokenBalance[owner()] = totalRewardToken;
     }
 
     function rewardBalance(address account)
@@ -49,16 +49,16 @@ contract SKTL is
         virtual
         returns (uint256)
     {
-        uint256 scaledOwed = _scaledRewardPerRewardToken -
+        uint256 scaledOwed = _scaledRewardPerToken -
             _scaledRewardCreditedTo[account];
-        return (_rewardTokenBalance[account] * scaledOwed) / scaling;
+        return (balanceOf(account) * scaledOwed) / scaling;
     }
 
     function _update(address account) internal {
         uint256 owed = rewardBalance(account);
         if (owed > 0) {
             _transferHookEnabled = false;
-            _scaledRewardCreditedTo[account] = _scaledRewardPerRewardToken;
+            _scaledRewardCreditedTo[account] = _scaledRewardPerToken;
             _transfer(owner(), account, owed);
             _transferHookEnabled = true;
         }
@@ -82,9 +82,9 @@ contract SKTL is
         _transfer(owner(), newOwner, balanceOf(owner()));
         _transferHookEnabled = true;
 
-        _rewardTokenBalance[newOwner] = _rewardTokenBalance[owner()];
-        _rewardTokenBalance[owner()] = 0;
-        _scaledRewardCreditedTo[newOwner] = _scaledRewardPerRewardToken;
+        // _rewardTokenBalance[newOwner] = _rewardTokenBalance[owner()];
+        // _rewardTokenBalance[owner()] = 0;
+        _scaledRewardCreditedTo[newOwner] = _scaledRewardPerToken;
 
         super.transferOwnership(newOwner);
     }
@@ -117,11 +117,11 @@ contract SKTL is
             // minting
             return;
 
-        uint256 rewardTokenTransfered = (value * totalRewardToken) /
-            totalSupply();
+        // uint256 rewardTokenTransfered = (value * totalRewardToken) /
+        //     totalSupply();
 
-        _rewardTokenBalance[from] -= rewardTokenTransfered;
-        _rewardTokenBalance[to] += rewardTokenTransfered;
+        // _rewardTokenBalance[from] -= rewardTokenTransfered;
+        // _rewardTokenBalance[to] += rewardTokenTransfered;
     }
 
     function increaseReward(uint256 amount) public onlyOwner {
@@ -129,9 +129,9 @@ contract SKTL is
 
         // scale the deposit and add the previous remainder
         uint256 scaledAvailable = (amount * scaling) + _scaledRemainder;
-        _scaledRewardPerRewardToken += scaledAvailable / totalRewardToken;
-        _scaledRemainder = scaledAvailable % totalRewardToken;
-        _scaledRewardCreditedTo[owner()] = _scaledRewardPerRewardToken;
+        _scaledRewardPerToken += scaledAvailable / totalSupply();
+        _scaledRemainder = scaledAvailable % totalSupply();
+        _scaledRewardCreditedTo[owner()] = _scaledRewardPerToken;
     }
 
     function withdraw() public {
@@ -139,14 +139,14 @@ contract SKTL is
         _update(_msgSender());
     }
 
-    function rewardTokenBalance(address addr)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
-        return _rewardTokenBalance[addr];
-    }
+    // function rewardTokenBalance(address addr)
+    //     public
+    //     view
+    //     virtual
+    //     returns (uint256)
+    // {
+    //     return _rewardTokenBalance[addr];
+    // }
 
     function _mint(address account, uint256 amount)
         internal
