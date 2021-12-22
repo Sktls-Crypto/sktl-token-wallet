@@ -8,3 +8,4 @@ front_end_again
 .env
 front_end/src/chain-info/
 temp/
+airdrop_address_*.json
