@@ -58,10 +58,10 @@ contract SKTL is
         uint256 owed = rewardBalance(account);
         if (owed > 0) {
             _transferHookEnabled = false;
+            _scaledRewardCreditedTo[account] = _scaledRewardPerRewardToken;
             _transfer(owner(), account, owed);
             _transferHookEnabled = true;
         }
-        _scaledRewardCreditedTo[account] = _scaledRewardPerRewardToken;
     }
 
     function transferOwnership(address newOwner)
