@@ -17,14 +17,9 @@ contract SKTL is
     ERC20Pausable,
     ERC20Capped
 {
-    uint256 public constant scaling = 10**10; // make sure rewards * scaling is still less than 2^256
-
-    // 3B fixed, to calculate the weight to payout rewards, set the accomodate the future max tokens
-    // uint256 public constant totalRewardToken = 3000 * 10**6 * 10**18;
-
+    uint256 public constant scaling = 10**18; // make sure rewards * scaling is still less than 2^256
     uint256 private _scaledRewardPerToken = 0;
     mapping(address => uint256) private _scaledRewardCreditedTo;
-    // mapping(address => uint256) private _rewardTokenBalance;
     uint256 private _scaledRemainder = 0;
     bool private _transferHookEnabled = true;
 
@@ -40,7 +35,6 @@ contract SKTL is
 
         // owner() will own the unclaimed tokens
         _mint(owner(), 200000000000000000000000000); // initial 200MM supply
-        // _rewardTokenBalance[owner()] = totalRewardToken;
     }
 
     function rewardBalance(address account)
@@ -81,9 +75,6 @@ contract SKTL is
         _transferHookEnabled = false;
         _transfer(owner(), newOwner, balanceOf(owner()));
         _transferHookEnabled = true;
-
-        // _rewardTokenBalance[newOwner] = _rewardTokenBalance[owner()];
-        // _rewardTokenBalance[owner()] = 0;
         _scaledRewardCreditedTo[newOwner] = _scaledRewardPerToken;
 
         super.transferOwnership(newOwner);
@@ -116,12 +107,6 @@ contract SKTL is
         if (from == address(0))
             // minting
             return;
-
-        // uint256 rewardTokenTransfered = (value * totalRewardToken) /
-        //     totalSupply();
-
-        // _rewardTokenBalance[from] -= rewardTokenTransfered;
-        // _rewardTokenBalance[to] += rewardTokenTransfered;
     }
 
     function increaseReward(uint256 amount) public onlyOwner {
@@ -138,15 +123,6 @@ contract SKTL is
         require(rewardBalance(_msgSender()) > 0, "No rewards left to withdraw");
         _update(_msgSender());
     }
-
-    // function rewardTokenBalance(address addr)
-    //     public
-    //     view
-    //     virtual
-    //     returns (uint256)
-    // {
-    //     return _rewardTokenBalance[addr];
-    // }
 
     function _mint(address account, uint256 amount)
         internal
