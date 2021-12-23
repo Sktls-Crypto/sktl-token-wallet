@@ -57,14 +57,14 @@ def airdrop():
     )
 
     amt = floor((100 * 10 ** 6 * 10 ** 18) / len(validated_addr))
-    amt = 100000 * (10 ** 18)
+    # amt = 100000 * (10 ** 18)
     logger.info(f"Going to drop {len(validated_addr)} addresses for {amt} sktls")
     # print(validated_addr)
     # gas_strategy = LinearScalingStrategy("10 gwei", "100000 gwei", 1.1)
     # gas_price(gas_strategy)
     # network.gas_limit(10 ** 17)
 
-    SktlAirdrop[0].airDrop(validated_addr, amt, {"from": get_account(0)})
+    # SktlAirdrop[0].airDrop(validated_addr, amt, {"from": get_account(0)})
 
 
 # def add_reward():
