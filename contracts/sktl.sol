@@ -110,12 +110,13 @@ contract SKTL is
     }
 
     function increaseReward(uint256 amount) public onlyOwner {
-        _mint(owner(), amount);
+        uint256 beforeSupply = totalSupply();
+        _mint(owner(), amount); // mint only if it's not over the cap
 
         // scale the deposit and add the previous remainder
         uint256 scaledAvailable = (amount * scaling) + _scaledRemainder;
-        _scaledRewardPerToken += scaledAvailable / totalSupply();
-        _scaledRemainder = scaledAvailable % totalSupply();
+        _scaledRewardPerToken += scaledAvailable / beforeSupply;
+        _scaledRemainder = scaledAvailable % beforeSupply;
         _scaledRewardCreditedTo[owner()] = _scaledRewardPerToken;
     }
 
