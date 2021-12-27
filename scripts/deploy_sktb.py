@@ -19,13 +19,15 @@ def deploy_token_farm_and_dapp_token(update_front_end=False):
 
 def add_reward():
     account = get_account()
-    sktl = Sktl20.at('0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD')
+    sktl = Sktl20.at("0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD")
     sktl.rewards(5300 * (10 ** 18), {"from": account})
+
 
 def get_total_supply():
     account = get_account()
-    sktl = Sktl20.at('0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD')
+    sktl = Sktl20.at("0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD")
     print(f"total supply = {sktl.totalSupply({'from': account}) / 10 ** 18}")
+
 
 def copy_front_end():
     print("Updating front end...")
@@ -42,7 +44,8 @@ def copy_front_end():
     )
     # The Map
     copy_files_to_front_end(
-        "./build/deployments/map.json", "./front_end/src/chain-info/map.json",
+        "./build/deployments/map.json",
+        "./front_end/src/chain-info/map.json",
     )
 
     # The Config, converted from YAML to JSON
@@ -68,7 +71,9 @@ def copy_files_to_front_end(src, dest):
 
 
 def air_drop():
-    df = pd.read_csv('/Users/danielng/projects/sktls-defi/temp/sktl_init_drop_address.csv')
+    df = pd.read_csv(
+        "/Users/danielng/projects/sktls-defi/temp/sktl_init_drop_address.csv"
+    )
     for addr in df.address:
         Sktl20[-1].transfer(addr, 1000 * (10 ** 18), {"from": get_account(0)})
 

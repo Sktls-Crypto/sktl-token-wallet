@@ -18,6 +18,10 @@ logbook.StreamHandler(sys.stdout).push_application()
 # KEPT_BALANCE = Web3.toWei(100, "ether")
 
 
+def print_current_contract():
+    print(SKTL[-1].address)
+
+
 def deploy_sktls(update_front_end=False):
     account = get_account()
     sktl_token = SKTL.deploy({"from": account}, publish_source=True)
@@ -29,23 +33,34 @@ def deploy_sktls(update_front_end=False):
     logger.info(f"{sktl_token.totalSupply()=}")
 
 
-def get_total_supply():
+def simple_transfer(addr, amt):
+    # just testing
     account = get_account()
-    logger.info(f"total supply = {SKTL[0].totalSupply({'from': account}) / 10 ** 18}")
-    logger.info(f"owner account = {SKTL[0].balanceOf(account) / 10 ** 18}")
+    SKTL[-1].transfer(addr, amt, {"from": account})
+
+
+def get_total_supply(addr):
+    account = get_account()
+    logger.info(f"total supply = {SKTL[-1].totalSupply({'from': account}) / 10 ** 18}")
+    logger.info(f"owner account = {SKTL[-1].balanceOf(addr) / 10 ** 18}")
 
 
 def deploy_airdrop():
     account = get_account()
-    sktlairdrop = SktlAirdrop.deploy(SKTL[0], {"from": account}, publish_source=True)
+    sktlairdrop = SktlAirdrop.deploy(SKTL[-1], {"from": account}, publish_source=True)
     logger.info(f"Deploy success to {sktlairdrop.address}")
 
 
 def deploy_approve():
-    SKTL[0].approve(SktlAirdrop[0], SKTL[0].balanceOf(get_account(0)), {"from": get_account(0)})
+    # need to approve the airdrop contract can spend for the owner account
+    SKTL[-1].approve(
+        SktlAirdrop[-1], SKTL[-1].balanceOf(get_account(0)), {"from": get_account(0)}
+    )
 
 
 def airdrop():
+    # read a list of address and airdrop
+
     address_file = "airdrop_address_20211222.json"
     with open(address_file, "r") as afile:
         addr = json.loads(afile.read())
