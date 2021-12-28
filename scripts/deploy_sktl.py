@@ -65,21 +65,21 @@ def airdrop():
     with open(address_file, "r") as afile:
         addr = json.loads(afile.read())
 
-    validated_addr = list(
+    validated_addrs = list(
         set(
             [a for a in addr if (isinstance(a, str) and len(a) == 42 and a[:2] == "0x")]
         )
     )
 
-    amt = floor((100 * 10 ** 6 * 10 ** 18) / len(validated_addr))
-    # amt = 100000 * (10 ** 18)
-    logger.info(f"Going to drop {len(validated_addr)} addresses for {amt} sktls")
+    # amt = floor((100 * 10 ** 6 * 10 ** 18) / len(validated_addr))
+    amt = 100000 * (10 ** 18)
+    logger.info(f"Going to drop {len(validated_addrs)} addresses for {amt} sktls")
     # print(validated_addr)
     # gas_strategy = LinearScalingStrategy("10 gwei", "100000 gwei", 1.1)
     # gas_price(gas_strategy)
     # network.gas_limit(10 ** 17)
 
-    # SktlAirdrop[0].airDrop(validated_addr, amt, {"from": get_account(0)})
+    SktlAirdrop[-1].airDrop(validated_addrs, amt, {"from": get_account(0)})
 
 
 # def add_reward():
