@@ -32,21 +32,21 @@ class TestSKTLLongTests(unittest.TestCase):
             3000,  # 2
             7000,  # 4
             13000,  # 5
+            0,  # 6
+            0,  # 7
+            0,  # 8
+            self.init_donation_pool,  # 9
         ]
 
         self.token = SKTL.deploy({"from": get_account(0)})
-        for i in range(1, len(self.init_acc_tokens)):
-            self.token.transfer(get_account(i), self.init_acc_tokens[i] * DECIMALS)
 
-        self.donation_pool_acc = 9
-        self.token.transfer(
-            get_account(self.donation_pool_acc), self.init_donation_pool * DECIMALS
-        )  # this is the donation pool
+        for i in range(1, len(self.init_acc_tokens)):
+            if (self.init_acc_tokens[i] > 0):
+                self.token.transfer(get_account(i), self.init_acc_tokens[i] * DECIMALS)
 
     def test_random_transfer_and_reward(self):
-        # random.seed('a')
-        init_acc_tokens = self.init_acc_tokens + [0, 0, 0, 100 * 10 ** 6]
-        init_acc_tokens[0] = 100 * 10 ** 6 - sum(self.init_acc_tokens)
+        random.seed('a')
+        self.init_acc_tokens[0] = 100 * 10 ** 6 - sum(self.init_acc_tokens[1:])
         transfered_record = defaultdict(int)  # {account => amt}
         reward_record = defaultdict(int)  # {account => amt}
 
@@ -56,7 +56,7 @@ class TestSKTLLongTests(unittest.TestCase):
             toacc = random.randint(1, 9)
 
             while toacc == fromacc:
-                toacc = random.randint(0, 9)
+                toacc = random.randint(1, 9)
 
             if self.token.balanceOf(get_account(fromacc)) == 0:
                 continue
@@ -82,7 +82,7 @@ class TestSKTLLongTests(unittest.TestCase):
             for i in (fromacc, toacc):
                 self.assertIntAlmostEqual(
                     self.token.balanceOf(get_account(i)),
-                    init_acc_tokens[i] * DECIMALS
+                    self.init_acc_tokens[i] * DECIMALS
                     + transfered_record[i]
                     + reward_record[i],
                     f"{loop=}: acount[{i}] balance not match after transfer",
@@ -118,7 +118,7 @@ class TestSKTLLongTests(unittest.TestCase):
                 self.assertIntAlmostEqual(
                     self.token.balanceOf(get_account(i))
                     + self.token.rewardBalance(get_account(i)),
-                    init_acc_tokens[i] * DECIMALS
+                    self.init_acc_tokens[i] * DECIMALS
                     + transfered_record[i]
                     + reward_record[i],
                     f"{loop=}: acount[{i}] balance not match after reward",
