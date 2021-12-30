@@ -44,6 +44,12 @@ class TestSKTLLongTests(unittest.TestCase):
             if (self.init_acc_tokens[i] > 0):
                 self.token.transfer(get_account(i), self.init_acc_tokens[i] * DECIMALS)
 
+    def print_current_status(self, transfered_record, reward_record):
+        for i in range(10):
+            print(
+                f"{i}: bal:{self.token.balanceOf(get_account(i))}, tran={transfered_record[i]}, rew_bal:{self.token.rewardBalance(get_account(i))}, rew_rec:{reward_record[i]}"
+            )
+
     def test_random_transfer_and_reward(self):
         random.seed('a')
         self.init_acc_tokens[0] = 100 * 10 ** 6 - sum(self.init_acc_tokens[1:])
@@ -68,12 +74,7 @@ class TestSKTLLongTests(unittest.TestCase):
             transfered_record[fromacc] -= transfer_amt
             transfered_record[toacc] += transfer_amt
             print()
-            print(f"Test Transfer {loop=}")
-            for i in range(10):
-                print(
-                    f"{i}: {self.token.balanceOf(get_account(i))}, tran={transfered_record[i]}"
-                )
-            print(f"{fromacc=} {toacc=} {transfer_amt=}")
+            print(f"***Test Transfer {loop=} {fromacc=} {toacc=} {transfer_amt=}***")
 
             self.token.transfer(
                 get_account(toacc), transfer_amt, {"from": get_account(fromacc)}
@@ -87,12 +88,14 @@ class TestSKTLLongTests(unittest.TestCase):
                     + reward_record[i],
                     f"{loop=}: acount[{i}] balance not match after transfer",
                 )
+            print('==After Transfer==')
+            self.print_current_status(transfered_record, reward_record)
 
             # TEST Reward
             reward_amt = int(1000000 * random.random() * DECIMALS)
 
             print()
-            print(f"Test reward {loop=} {reward_amt=}")
+            print(f"***Test reward {loop=} {reward_amt=} {self.token.totalSupply()=}***")
 
             for i in range(10):
                 tot_balance = self.token.balanceOf(
@@ -102,11 +105,8 @@ class TestSKTLLongTests(unittest.TestCase):
                     reward_amt * tot_balance / self.token.totalSupply()
                 )
             self.token.increaseReward(reward_amt, {"from": get_account(0)})
-
-            for i in range(10):
-                print(
-                    f"{i}: rewardBalance={self.token.rewardBalance(get_account(i))} reward_rec={reward_record[i]}"
-                )
+            print('==After Reward==')
+            self.print_current_status(transfered_record, reward_record)
 
             # skip 1, because it's the owner
             for i in range(1, 10):

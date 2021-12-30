@@ -58,10 +58,13 @@ contract SKTL is
         uint256 owed = rewardBalance(account);
         if (owed > 0) {
             _transferHookEnabled = false;
-            _scaledRewardCreditedTo[account] = _scaledRewardPerRewardToken;
             _transfer(owner(), account, owed);
             _transferHookEnabled = true;
         }
+
+        // always make sure the no more unclaimed reward, 
+        // this is to handle the case when transfer receiver has 0 token to begin with
+        _scaledRewardCreditedTo[account] = _scaledRewardPerRewardToken;
     }
 
     function transferOwnership(address newOwner)
@@ -101,6 +104,7 @@ contract SKTL is
             // minting
             return;
 
+        // make sure both accounts claim rewards
         _update(from);
         _update(to);
     }
