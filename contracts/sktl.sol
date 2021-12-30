@@ -1,7 +1,7 @@
 // Contract SKTL
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
@@ -62,7 +62,7 @@ contract SKTL is
             _transferHookEnabled = true;
         }
 
-        // always make sure the no more unclaimed reward, 
+        // always make sure the no more unclaimed reward,
         // this is to handle the case when transfer receiver has 0 token to begin with
         _scaledRewardCreditedTo[account] = _scaledRewardPerRewardToken;
     }
