@@ -18,6 +18,10 @@ logbook.StreamHandler(sys.stdout).push_application()
 # KEPT_BALANCE = Web3.toWei(100, "ether")
 
 
+def print_account(index: str):
+    print(get_account(int(index)))
+
+
 def print_current_contract():
     print(SKTL[-1].address)
 
