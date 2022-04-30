@@ -19,7 +19,7 @@ contract SKTL is
 {
     uint256 public constant scaling = 10**36; // make sure totalRewardToken * scaling is still less than 2^256
 
-    // 3B fixed, to calculate the weight to payout rewards, set the accomodate the future max tokens
+    // 3B fixed, to calculate the weight to payout rewards, set the accommodate the future max tokens
     uint256 public constant totalRewardToken = 3000 * 10**6 * 10**18;
 
     uint256 private _scaledRewardPerRewardToken;
@@ -121,11 +121,11 @@ contract SKTL is
             // minting
             return;
 
-        uint256 rewardTokenTransfered = (value * totalRewardToken) /
+        uint256 rewardTokenTransferred = (value * totalRewardToken) /
             totalSupply();
 
-        _rewardTokenBalance[from] -= rewardTokenTransfered;
-        _rewardTokenBalance[to] += rewardTokenTransfered;
+        _rewardTokenBalance[from] -= rewardTokenTransferred;
+        _rewardTokenBalance[to] += rewardTokenTransferred;
     }
 
     function increaseReward(uint256 amount) public onlyOwner {

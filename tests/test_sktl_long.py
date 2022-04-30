@@ -43,13 +43,13 @@ class TestSKTLLongTests(unittest.TestCase):
             if self.init_acc_tokens[i] > 0:
                 self.token.transfer(get_account(i), self.init_acc_tokens[i] * DECIMALS)
 
-    def print_current_status(self, transfered_record, reward_record):
+    def print_current_status(self, transferred_record, reward_record):
         for i in range(10):
             print(
-                f"{i}: bal:{self.token.balanceOf(get_account(i))}, tran={transfered_record[i]}, rew_bal:{self.token.rewardBalance(get_account(i))}, rew_rec:{reward_record[i]}"
+                f"{i}: bal:{self.token.balanceOf(get_account(i))}, tran={transferred_record[i]}, rew_bal:{self.token.rewardBalance(get_account(i))}, rew_rec:{reward_record[i]}"
             )
 
-    def _test_transfer(self, transfered_record, reward_record, loop):
+    def _test_transfer(self, transferred_record, reward_record, loop):
         # TEST transfer
         fromacc = random.randint(1, 9)
         toacc = random.randint(1, 9)
@@ -62,8 +62,8 @@ class TestSKTLLongTests(unittest.TestCase):
 
         transfer_pct = random.random()
         transfer_amt = int(self.token.balanceOf(get_account(fromacc)) * transfer_pct)
-        transfered_record[fromacc] -= transfer_amt
-        transfered_record[toacc] += transfer_amt
+        transferred_record[fromacc] -= transfer_amt
+        transferred_record[toacc] += transfer_amt
         print()
         print(f"***Test Transfer {loop=} {fromacc=} {toacc=} {transfer_amt=}***")
 
@@ -75,14 +75,14 @@ class TestSKTLLongTests(unittest.TestCase):
             self.assertIntAlmostEqual(
                 self.token.balanceOf(get_account(i)),
                 self.init_acc_tokens[i] * DECIMALS
-                + transfered_record[i]
+                + transferred_record[i]
                 + reward_record[i],
                 f"{loop=}: acount[{i}] balance not match after transfer",
             )
         print("==After Transfer==")
-        self.print_current_status(transfered_record, reward_record)
+        self.print_current_status(transferred_record, reward_record)
 
-    def _test_reward(self, transfered_record, reward_record, loop):
+    def _test_reward(self, transferred_record, reward_record, loop):
         # TEST Reward
         reward_amt = int(1000000 * random.random() * DECIMALS)
 
@@ -96,7 +96,7 @@ class TestSKTLLongTests(unittest.TestCase):
             reward_record[i] += int(reward_amt * tot_balance / self.token.totalSupply())
         self.token.increaseReward(reward_amt, {"from": get_account(0)})
         print("==After Reward==")
-        self.print_current_status(transfered_record, reward_record)
+        self.print_current_status(transferred_record, reward_record)
 
         # skip 1, because it's the owner
         for i in range(1, 10):
@@ -109,7 +109,7 @@ class TestSKTLLongTests(unittest.TestCase):
                 self.token.balanceOf(get_account(i))
                 + self.token.rewardBalance(get_account(i)),
                 self.init_acc_tokens[i] * DECIMALS
-                + transfered_record[i]
+                + transferred_record[i]
                 + reward_record[i],
                 f"{loop=}: acount[{i}] balance not match after reward",
             )
@@ -118,9 +118,9 @@ class TestSKTLLongTests(unittest.TestCase):
         # to fix the random seed, for debug only
         # random.seed("a")
         self.init_acc_tokens[0] = 100 * 10 ** 6 - sum(self.init_acc_tokens[1:])
-        transfered_record = defaultdict(int)  # {account => amt}
+        transferred_record = defaultdict(int)  # {account => amt}
         reward_record = defaultdict(int)  # {account => amt}
 
         for loop in range(20):
-            self._test_transfer(transfered_record, reward_record, loop)
-            self._test_reward(transfered_record, reward_record, loop)
+            self._test_transfer(transferred_record, reward_record, loop)
+            self._test_reward(transferred_record, reward_record, loop)

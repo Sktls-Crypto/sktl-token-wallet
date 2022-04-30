@@ -36,9 +36,9 @@ class TestSKTLSimpleDvd(unittest.TestCase):
         for i in range(1, len(self.init_acc_tokens)):
             self.token.transfer(get_account(i), self.init_acc_tokens[i] * DECIMALS)
 
-        self.dontation_pool_acc = 9
+        self.donation_pool_acc = 9
         self.token.transfer(
-            get_account(self.dontation_pool_acc), self.init_donation_pool * DECIMALS
+            get_account(self.donation_pool_acc), self.init_donation_pool * DECIMALS
         )  # this is the donation pool
 
     def test_init_wallets(self):
@@ -57,7 +57,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
             )
 
         self.assertEqual(
-            self.token.balanceOf(get_account(self.dontation_pool_acc)),
+            self.token.balanceOf(get_account(self.donation_pool_acc)),
             self.init_donation_pool * DECIMALS,
             "original donation pool balance failed after init transfer",
         )
@@ -69,7 +69,7 @@ class TestSKTLSimpleDvd(unittest.TestCase):
 
         self.assertEqual(
             int(
-                self.token.rewardTokenBalance(get_account(self.dontation_pool_acc))
+                self.token.rewardTokenBalance(get_account(self.donation_pool_acc))
                 / DECIMALS
             ),
             int(half_token / DECIMALS),
