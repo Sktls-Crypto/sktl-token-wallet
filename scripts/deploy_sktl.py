@@ -75,6 +75,8 @@ def airdrop():
         )
     )
 
+    wallets_num = len(validated_addrs)
+
     # amt = floor((100 * 10 ** 6 * 10 ** 18) / len(validated_addr))
     amt = 100000 * (10 ** 18)
     logger.info(f"Going to drop {len(validated_addrs)} addresses for {amt} sktls")
