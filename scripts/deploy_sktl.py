@@ -62,10 +62,16 @@ def deploy_approve():
     )
 
 
+def batch(iterable, n=1):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx + n, l)]
+
+
 def airdrop():
     # read a list of address and airdrop
 
-    address_file = "airdrop_address_20211222.json"
+    address_file = "airdrop_address_20220501.json"
     with open(address_file, "r") as afile:
         addr = json.loads(afile.read())
 
@@ -75,17 +81,16 @@ def airdrop():
         )
     )
 
-    wallets_num = len(validated_addrs)
-
-    # amt = floor((100 * 10 ** 6 * 10 ** 18) / len(validated_addr))
-    amt = 100000 * (10 ** 18)
+    amt = floor((100 * 10 ** 6 * 10 ** 18) / len(validated_addrs))
+    # amt = 100000 * (10 ** 18)
     logger.info(f"Going to drop {len(validated_addrs)} addresses for {amt} sktls")
-    # print(validated_addr)
     # gas_strategy = LinearScalingStrategy("10 gwei", "100000 gwei", 1.1)
     # gas_price(gas_strategy)
-    # network.gas_limit(10 ** 17)
+    # network.gas_limit(2 * 10 ** 18)
 
-    SktlAirdrop[-1].airDrop(validated_addrs, amt, {"from": get_account(0)})
+    for addrs in batch(validated_addrs, 100):
+        logger.info(f"dropping {len(addrs)=}, first addr={addrs[0]}")
+        SktlAirdrop[-1].airDrop(addrs, amt, {"from": get_account(0)})
 
 
 # def add_reward():
