@@ -7,5 +7,6 @@ node_modules
 front_end_again
 .env
 front_end/src/chain-info/
+front_end/src/contracts/
 temp/
 airdrop_address_*.json
