@@ -93,11 +93,11 @@ def airdrop():
         SktlAirdrop[-1].airDrop(addrs, amt, {"from": get_account(0)})
 
 
-# def add_reward():
-#     account = get_account()
-#     sktl = Sktl20.at('0x292135fF911E6081ecC90F3bD1f9CDaAED5C78cD')
-#     sktl.rewards(5300 * (10 ** 18), {"from": account})
-#
+def add_reward():
+    account = get_account()
+    SKTL[-1].increaseReward(100000 * (10 ** 18), {"from": account})
+
+
 def copy_front_end():
     print("Updating front end...")
     # The Build
