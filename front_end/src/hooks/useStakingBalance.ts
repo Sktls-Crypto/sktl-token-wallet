@@ -19,9 +19,10 @@ export const useStakingBalance = (address: string): BigNumber | undefined => {
     useContractCall({
       abi: sktl20Interface,
       address: sktl20ContractAddress,
-      method: "reward_balance",
+      method: "rewardBalance",
       args: [account],
     }) ?? []
 
+  console.log(`stakingBalance ${stakingBalance}`)
   return stakingBalance
 }
