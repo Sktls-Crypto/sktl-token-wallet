@@ -1,17 +1,17 @@
 import { useContractFunction, useEthers } from "@usedapp/core"
-import Sktl20 from "../chain-info/Sktl20.json"
+import SKTL from "../chain-info/SKTL.json"
 import { utils, constants } from "ethers"
 import { Contract } from "@ethersproject/contracts"
 import networkMapping from "../chain-info/map.json"
 
 /**
- * Expose { send, state } object to facilitate unstaking the user's tokens from the Sktl20 contract
+ * Expose { send, state } object to facilitate unstaking the user's tokens from the SKTL contract
  */
 export const useWithdrawRewards = () => {
   const { chainId } = useEthers()
 
-  const { abi } = Sktl20
-  const sktlContractAddr = chainId ? networkMapping[String(chainId)]["Sktl20"][0] : constants.AddressZero
+  const { abi } = SKTL
+  const sktlContractAddr = chainId ? networkMapping[String(chainId)]["SKTL"][0] : constants.AddressZero
   console.log(`useWithdrawRewards: sktlContractAddr=${sktlContractAddr}`);
 
   const sktlInterface = new utils.Interface(abi)

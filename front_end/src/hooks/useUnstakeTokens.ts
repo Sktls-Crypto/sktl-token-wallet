@@ -1,5 +1,5 @@
 import { useContractFunction, useEthers } from "@usedapp/core"
-import TokenFarm from "../chain-info/TokenFarm.json"
+// import TokenFarm from "../chain-info/TokenFarm.json"
 import { utils, constants } from "ethers"
 import { Contract } from "@ethersproject/contracts"
 import networkMapping from "../chain-info/map.json"
@@ -10,17 +10,18 @@ import networkMapping from "../chain-info/map.json"
 export const useUnstakeTokens = () => {
   const { chainId } = useEthers()
 
-  const { abi } = TokenFarm
-  const tokenFarmContractAddress = chainId ? networkMapping[String(chainId)]["TokenFarm"][0] : constants.AddressZero
+  // const { abi } = TokenFarm
+  // const tokenFarmContractAddress = chainId ? networkMapping[String(chainId)]["TokenFarm"][0] : constants.AddressZero
 
-  const tokenFarmInterface = new utils.Interface(abi)
+  // const tokenFarmInterface = new utils.Interface(abi)
 
-  const tokenFarmContract = new Contract(
-    tokenFarmContractAddress,
-    tokenFarmInterface
-  )
+  // const tokenFarmContract = new Contract(
+  //   tokenFarmContractAddress,
+  //   tokenFarmInterface
+  // )
 
-  return useContractFunction(tokenFarmContract, "unstakeTokens", {
-    transactionName: "Unstake tokens",
-  })
+  // return useContractFunction(tokenFarmContract, "unstakeTokens", {
+  //   transactionName: "Unstake tokens",
+  // })
+  return {};
 }

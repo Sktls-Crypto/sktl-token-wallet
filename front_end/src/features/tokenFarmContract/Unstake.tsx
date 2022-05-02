@@ -6,7 +6,7 @@ import {
   makeStyles,
 } from "@material-ui/core"
 import { Token } from "../Main"
-import { useUnstakeTokens, useStakingBalance } from "../../hooks"
+//import { useUnstakeTokens, useStakingBalance } from "../../hooks"
 import Alert from "@material-ui/lab/Alert"
 import { useNotifications } from "@usedapp/core"
 import { formatUnits } from "@ethersproject/units"
@@ -31,17 +31,18 @@ export const Unstake = ({ token }: UnstakeFormProps) => {
 
   const { notifications } = useNotifications()
 
-  const balance = useStakingBalance(tokenAddress)
+  const balance = 888 //useStakingBalance(tokenAddress)
 
   const formattedBalance: number = balance
     ? parseFloat(formatUnits(balance, 18))
     : 0
 
-  const { send: unstakeTokensSend, state: unstakeTokensState } =
-    useUnstakeTokens()
+  //const { send: unstakeTokensSend, state: unstakeTokensState } =
+    //useUnstakeTokens()
 
   const handleUnstakeSubmit = () => {
-    return unstakeTokensSend(tokenAddress)
+    return null
+    //unstakeTokensSend(tokenAddress)
   }
 
   const [showUnstakeSuccess, setShowUnstakeSuccess] = useState(false)
@@ -62,7 +63,7 @@ export const Unstake = ({ token }: UnstakeFormProps) => {
     }
   }, [notifications, showUnstakeSuccess])
 
-  const isMining = unstakeTokensState.status === "Mining"
+  const isMining = false //unstakeTokensState.status === "Mining"
 
 
   const classes = useStyles()

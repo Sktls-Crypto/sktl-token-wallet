@@ -19,6 +19,8 @@ export const WalletBalance = ({ token }: WalletBalanceProps) => {
     ? parseFloat(formatUnits(tokenBalance, 18))
     : 0;
 
+  console.log(`address=${address}, account=${account}, tokenBalance=${tokenBalance}`);
+
   return (
       <div>
             <BalanceMsg

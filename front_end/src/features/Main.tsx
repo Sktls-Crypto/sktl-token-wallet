@@ -9,7 +9,7 @@ import { YourWallet } from "./yourWallet"
 import { TokenFarmContract } from "./tokenFarmContract"
 import { useEthers } from "@usedapp/core"
 import { constants } from "ethers"
-import DappToken from "../chain-info/DappToken.json"
+// import DappToken from "../chain-info/DappToken.json"
 import { Snackbar, Typography, makeStyles } from "@material-ui/core"
 import Alert from "@material-ui/lab/Alert"
 import networkMapping from "../chain-info/map.json"
@@ -44,7 +44,7 @@ export const Main = () => {
   // const dappTokenAddress = chainId ? networkMapping[String(chainId)]["DappToken"][0] : constants.AddressZero
   // const wethTokenAddress = chainId ? brownieConfig["networks"][networkName]["weth_token"] : constants.AddressZero
   // const fauTokenAddress = chainId ? brownieConfig["networks"][networkName]["fau_token"] : constants.AddressZero
-  const sktlTokenAddress = chainId ? networkMapping[String(chainId)]["Sktl20"][0] : constants.AddressZero
+  const sktlTokenAddress = chainId ? networkMapping[String(chainId)]["SKTL"][0] : constants.AddressZero
   console.log(`sktlTokenAddress = ${sktlTokenAddress}`);
   /**
    * Our single central location to store info on support tokens.
@@ -74,7 +74,7 @@ export const Main = () => {
     {
       image: sktls,
       address: sktlTokenAddress,
-      name: "SKTB",
+      name: "SKTL",
     }
   ]
 
@@ -125,7 +125,7 @@ export const Main = () => {
         onClose={handleCloseNetworkError}
       >
         <Alert onClose={handleCloseNetworkError} severity="warning">
-          You gotta connect to the Rinkeby network!
+          You gotta connect to the BSC network!
         </Alert>
       </Snackbar>
     </>

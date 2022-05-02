@@ -45,6 +45,7 @@ export const TokenFarmContract = ({
 
   const isConnected = account !== undefined
 
+  /*
   return (
     <Box>
       <h1 className={classes.header}>The TokenFarm Contract</h1>
@@ -77,5 +78,9 @@ export const TokenFarmContract = ({
         </div>
       </Box>
     </Box>
+  )
+   */
+  return (
+    <h1> Some Token Farm Box </h1>
   )
 }

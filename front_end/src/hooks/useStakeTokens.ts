@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useContractFunction, useEthers } from "@usedapp/core"
-import Sktl20 from "../chain-info/Sktl20.json"
+import SKTL from "../chain-info/SKTL.json"
 import Erc20 from "../chain-info/ERC20.json"
 import { utils, constants } from "ethers"
 import { Contract } from "@ethersproject/contracts"
@@ -9,15 +9,15 @@ import networkMapping from "../chain-info/map.json"
 /**
  * This hook is a bit messy but exposes a 'send' which makes two transactions.
  * The first transaction is to approve the ERC-20 token transfer on the token's contract.
- * Upon successful approval, a second transaction is initiated to execute the transfer by the Sktl20 contract.
+ * Upon successful approval, a second transaction is initiated to execute the transfer by the SKTL contract.
  * The 'state' returned by this hook is the state of the first transaction until that has status "Succeeded".
  * After that it is the state of the second transaction.
  * @param tokenAddress - The token address of the token we wish to stake
  */
 export const useStakeTokens = (tokenAddress: string) => {
   const { chainId } = useEthers()
-  const { abi } = Sktl20
-  const tokenFarmContractAddress = chainId ? networkMapping[String(chainId)]["Sktl20"][0] : constants.AddressZero
+  const { abi } = SKTL
+  const tokenFarmContractAddress = chainId ? networkMapping[String(chainId)]["SKTL"][0] : constants.AddressZero
 
   const tokenFarmInterface = new utils.Interface(abi)
 
