@@ -23,6 +23,6 @@ export const useStakingBalance = (address: string): BigNumber | undefined => {
       args: [account],
     }) ?? []
 
-  console.log(`stakingBalance ${stakingBalance}`)
+  // console.log(`stakingBalance ${stakingBalance}`)
   return stakingBalance
 }
