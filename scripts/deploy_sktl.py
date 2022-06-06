@@ -71,7 +71,7 @@ def batch(iterable, n=1):
 def airdrop():
     # read a list of address and airdrop
 
-    address_file = "airdrop_address_20220501.json"
+    address_file = "airdrop_address_20220506.json"
     with open(address_file, "r") as afile:
         addr = json.loads(afile.read())
 

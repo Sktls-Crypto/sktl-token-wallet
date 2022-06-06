@@ -32,6 +32,8 @@ networks:
     verify: True
   bsc-test:
     verify: True
+  bsc-main:
+    verify: True
 wallets:
   from_key: ${PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}
