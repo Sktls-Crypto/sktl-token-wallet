@@ -12,9 +12,9 @@ import {
 
 export const App = () => {
     const config = {
-  readOnlyChainId: ChainId.BSCTestnet,
+  readOnlyChainId: ChainId.BSC,
   readOnlyUrls: {
-    [ChainId.BSCTestnet]: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+    [ChainId.BSC]: 'https://bsc-dataseed1.binance.org',
   },
 }
 
