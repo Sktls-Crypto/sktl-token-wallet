@@ -93,9 +93,29 @@ def airdrop():
         SktlAirdrop[-1].airDrop(addrs, amt, {"from": get_account(0)})
 
 
-def add_reward():
-    account = get_account()
-    SKTL[-1].increaseReward(100000 * (10 ** 18), {"from": account})
+def rewardBalance(acc):
+    bal = SKTL[-1].rewardBalance(acc)
+    print(f"{acc} has {bal} SKTLs")
+
+
+def rewardTokenBalance(acc):
+    bal = SKTL[-1].rewardTokenBalance(acc)
+    print(f"{acc} has {bal} rewardToken(s)")
+
+
+def add_reward(amt):
+    amt = int(amt)
+    raw_amt = amt * (10 ** 18)
+    account = get_account(0)
+    print(f"Adding new SKTL in the amt:{amt}, raw_amt={raw_amt}")
+    SKTL[-1].increaseReward(raw_amt, {"from": account})
+    # print(account, SKTL[-1].balanceOf(account))
+
+
+def withdraw(acc_idx):
+    acc = get_account(int(acc_idx))
+    SKTL[-1].withdraw({"from": acc})
+    print(f"Withdrew for {acc}")
 
 
 def copy_front_end():
