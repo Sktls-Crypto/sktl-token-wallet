@@ -11,4 +11,4 @@ front_end/src/contracts/
 temp/
 airdrop_address_*.json
 brownie/
-env-py39/
+venvpy39/
