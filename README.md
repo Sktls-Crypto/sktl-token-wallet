@@ -25,3 +25,6 @@ brownie test tests --verbose
 ```
 npm install -g solhint
 ```
+
+Updates on Aug 18, 2023
+eth-brownie is very tricky to be installed on M2 Macbook pro.  I needed to build using the source cloned from Github.
