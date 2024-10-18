@@ -12,3 +12,4 @@ temp/
 airdrop_address_*.json
 brownie/
 venv*
+.idea/
