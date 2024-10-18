@@ -95,12 +95,12 @@ def airdrop():
 
 def rewardBalance(acc):
     bal = SKTL[-1].rewardBalance(acc)
-    print(f"{acc} has {bal} SKTLs")
+    print(f"{acc} has {bal / 10**18} SKTLs")
 
 
 def rewardTokenBalance(acc):
     bal = SKTL[-1].rewardTokenBalance(acc)
-    print(f"{acc} has {bal} rewardToken(s)")
+    print(f"{acc} has {bal / 10**18} rewardToken(s)")
 
 
 def add_reward(amt):
